@@ -56,8 +56,8 @@ export default {
     }],
     ['nuxt-env', {
       keys: [
-        'REQUEST_TOKEN',
-        // { key: 'REQUEST_TOKEN', secret: true } // Only inject the var server side
+        // 'REQUEST_TOKEN',
+        // // { key: 'REQUEST_TOKEN', secret: true } // Only inject the var server side
         'BUILD_HASH'
       ]
     }]
@@ -72,7 +72,11 @@ export default {
     proxy: true
   },
   proxy: {
-    '/api/': {target: process.env.BACKEND_URL || 'http://localhost:8000/', pathRewrite: {'^/api/': ''}}
+    '/api/': {
+      target: process.env.BACKEND_URL || 'http://localhost:8000/',
+      pathRewrite: {'^/api/': ''},
+      headers: { 'api_token': process.env.API_TOKEN }
+    }
   },
   // styleResources: {
   //   // your settings here
