@@ -90,7 +90,7 @@
                 {'is-danger': ($dateFns.differenceInDays(new Date(), new Date(props.row.created_at)) >= 7) },
                 {'is-success': ($dateFns.differenceInDays(new Date(), new Date(props.row.created_at)) < 7) }
             ]"
-              >{{ $dateFns.format(new Date(props.row.created_at), 'DD/MM/YYYY') }}</span>
+              >{{ $dateFns.format(new Date(props.row.created_at), 'dd/MM/yyyy') }}</span>
             </b-table-column>
             <b-table-column field="author_name" label="Author name">{{ props.row.author_name }}</b-table-column>
             <b-table-column field="author_email" label="Author email">{{ props.row.author_email }}</b-table-column>

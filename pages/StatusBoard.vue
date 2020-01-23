@@ -158,7 +158,7 @@ export default {
             } else {
               jobDict['artifacts_expire_at'] =
                 'in ' +
-                this.$dateFns.distanceInWordsToNow(
+                this.$dateFns.formatDistanceToNow(
                   new Date(currentPipeline.jobStatus.artifacts_expire_at)
                 )
               jobDict['artifacts_link'] =
@@ -175,7 +175,7 @@ export default {
             jobDict['artifacts_link'] = ''
             jobDict['artifacts'] = ''
         }
-        jobDict['created_at'] = this.$dateFns.distanceInWordsToNow(
+        jobDict['created_at'] = this.$dateFns.formatDistanceToNow(
           new Date(currentPipeline.jobStatus.created_at)
         )
         jobDict['web_url'] = currentPipeline.jobStatus.web_url

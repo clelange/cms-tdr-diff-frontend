@@ -61,7 +61,7 @@
                 {'is-danger': ($dateFns.differenceInDays(new Date(), new Date(props.row.last_activity_at)) >= 7) },
                 {'is-success': ($dateFns.differenceInDays(new Date(), new Date(props.row.last_activity_at)) < 7) }
             ]"
-                >{{ $dateFns.distanceInWordsToNow(new Date(props.row.last_activity_at)) }}</span>
+                >{{ $dateFns.formatDistanceToNow(new Date(props.row.last_activity_at)) }}</span>
               </b-table-column>
               <b-table-column field="description" label="Description">{{ props.row.description }}</b-table-column>
               <b-table-column field="web_url" label="GitLab repository">
