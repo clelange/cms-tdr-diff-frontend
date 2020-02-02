@@ -13,7 +13,7 @@
       <p>You can filter by commit title and author name using the search box below. This will also show matches from other pages. It might also be useful to sort by date of last activity. Only commits of the last 90 days are shown.</p>
       <p>
         Select two commits, then hit the submit button to trigger the PDF diff pipeline. You can find the status of your jobs on the
-        <nuxt-link to="/statusboard">Status Board</nuxt-link>page.
+        <nuxt-link to="/statusboard">Status Board</nuxt-link> page.
       </p>
     </section>
     <div>
@@ -59,8 +59,21 @@
         </button>
       </b-field>
       <b-tabs>
+        <b-field grouped group-multiline>
+          <b-select v-model="perPage" :disabled="!isPaginated">
+            <option value="10">10 per page</option>
+            <option value="20">20 per page</option>
+            <option value="50">50 per page</option>
+          </b-select>
+          <div class="control is-flex">
+            <b-switch v-model="isPaginated">Paginated</b-switch>
+          </div>
+        </b-field>
         <b-table
           :data="filtered"
+          :paginated="isPaginated"
+          :per-page="perPage"
+          pagination-position="top"
           :hoverable="true"
           :striped="true"
           sort-icon="chevron-up"
@@ -118,6 +131,8 @@ export default {
       isLoading: !this.$store.state.apiStatus,
       categoryName: this.$route.params.pathMatch.split('/')[0],
       search_query: '',
+      perPage: 10,
+      isPaginated: true,
       checkedRows: [],
       commitList: [],
       currentPipeline: null
