@@ -18,7 +18,7 @@
     </template>
 
     <template slot="end">
-      <b-navbar-item href="#">
+      <b-navbar-item href="#" onClick="window.location.reload();">
         <h1 v-if="apiStatus === 'good'" style="color: green;" class="button">API status OK</h1>
         <h1
           v-else-if="apiStatus === 'bad'"
