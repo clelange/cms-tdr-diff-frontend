@@ -14,6 +14,7 @@
         :to="'/'+item"
         tag="nuxt-link"
       >{{ item }}</b-navbar-item>
+      <b-navbar-item to="/about" tag="nuxt-link">About</b-navbar-item>
     </template>
 
     <template slot="end">
