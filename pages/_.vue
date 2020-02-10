@@ -15,6 +15,9 @@
       <!-- When using asyncData:
       <span>...{{ myProjects }}...</span>-->
     </div>
+    <div>
+      <page-footer />
+    </div>
   </div>
 </template>
 
@@ -23,12 +26,14 @@ import { mapState } from 'vuex'
 import ListNotes from '~/components/ListNotes.vue'
 import ListCommits from '~/components/ListCommits.vue'
 import PageHeader from '~/components/Header.vue'
+import PageFooter from '~/components/Footer.vue'
 
 export default {
   components: {
     ListNotes,
     ListCommits,
-    PageHeader
+    PageHeader,
+    PageFooter
   },
   data() {
     return {
