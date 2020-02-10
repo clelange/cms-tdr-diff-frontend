@@ -19,7 +19,7 @@
     <div>
       <nav class="panel">
         <div class="panel-block">
-          <b-field label="Filter by name">
+          <b-field label="Filter by ID, Commit title, or Author name">
             <p class="control has-icons-left">
               <b-input v-model="search_query" type="text" icon="magnify" placeholder="search"></b-input>
               <span class="icon is-small is-left">
