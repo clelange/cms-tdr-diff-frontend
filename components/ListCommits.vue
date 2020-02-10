@@ -43,7 +43,7 @@
       <b-button
         type="is-primary"
         size="is-large"
-        v-bind:disabled="checkedRows.length != 2"
+        v-bind:disabled="checkedRows.length != 2 || isSubmitted == true"
         @click="submitJob()"
       >Submit</b-button>
     </div>
@@ -134,6 +134,7 @@ export default {
       perPage: 10,
       isPaginated: true,
       checkedRows: [],
+      isSubmitted: false,
       commitList: [],
       currentPipeline: null
     }
@@ -165,6 +166,7 @@ export default {
   methods: {
     removeElement(index) {
       this.checkedRows.splice(index, 1)
+      this.isSubmitted = false
     },
     toggleSelected(row) {
       const index = this.checkedRows.findIndex(p => p.short_id == row.short_id)
@@ -175,10 +177,11 @@ export default {
       } else {
         this.checkedRows.push(row)
       }
+      this.isSubmitted = false
     },
     success(payload) {
       this.$buefy.toast.open({
-        duration: 5000,
+        duration: 8000,
         message:
           payload.status + ' Pipeline ID: ' + payload.pipeline_id.toString(),
         type: 'is-success'
@@ -193,6 +196,13 @@ export default {
       } else return -1
     },
     async submitJob() {
+      this.isSubmitted = true
+      this.$buefy.toast.open({
+        duration: 5000,
+        message:
+          'Submitting job to GitLab',
+        type: 'is-info'
+      })
       const sorted = this.checkedRows.sort(this.compare)
       // older comes first
       console.log(sorted, sorted[0].short_id, sorted[1].short_id)
