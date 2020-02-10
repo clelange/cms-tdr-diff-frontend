@@ -78,7 +78,6 @@
 <script>
 export default {
   data() {
-    console.log('called data() in listNotes.vue')
     return {
       isLoading: !this.$store.state.apiStatus,
       categoryName: this.$route.params.pathMatch.split('/')[0],
