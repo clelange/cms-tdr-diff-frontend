@@ -26,6 +26,7 @@ export default {
   loading: {
     color: 'blue',
     duration: 5000,
+    throttle: 500,
     continuous: true
   },
   /*
