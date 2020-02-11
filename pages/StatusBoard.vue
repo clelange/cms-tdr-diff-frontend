@@ -78,6 +78,9 @@
         </b-table>
       </b-tabs>
     </section>
+    <div>
+      <page-footer />
+    </div>
   </div>
 </template>
 
@@ -95,10 +98,12 @@ export default {
 <script>
 import { mapState } from 'vuex'
 import PageHeader from '~/components/Header.vue'
+import PageFooter from '~/components/Footer.vue'
 
 export default {
   components: {
-    PageHeader
+    PageHeader,
+    PageFooter
   },
   data() {
     return {
