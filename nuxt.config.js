@@ -16,7 +16,7 @@ export default {
       {
         rel: "stylesheet",
         href:
-          "https://fonts.googleapis.com/css?family=Permanent+Marker&display=swap"
+          "https://fonts.googleapis.com/css?family=Permanent+Marker&display=swap&text=CMS%20PaperDif"
       }
     ]
   },
