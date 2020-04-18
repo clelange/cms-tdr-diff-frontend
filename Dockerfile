@@ -1,7 +1,6 @@
 FROM node:13.13.0-alpine
 
-ARG SNAPSHOT_TAG="local"
-ENV BUILD_HASH ${SNAPSHOT_TAG}
+ARG BUILD_HASH="local"
 ENV BACKEND_URL "http://localhost:8000/"
 # RUN npm install -g http-server
 WORKDIR /app

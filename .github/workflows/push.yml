@@ -6,14 +6,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - name: Define variables
+      run: |
+          local TIMESTAMP=`date +%Y%m%d%H%M%S`
+          local SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-6)
+          local SNAPSHOT_TAG="${TIMESTAMP}${SHORT_SHA}"
+          echo ::set-output name=SNAPSHOT::"${SNAPSHOT_TAG}"
     - name: Build and push frontend
       uses: elgohr/Publish-Docker-Github-Action@master
-      env:
-        SNAPSHOT_TAG: $SNAPSHOT_TAG
       with:
         name: clelange/tdr-diff-client
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        buildargs: SNAPSHOT_TAG
+        buildargs: BUILD_HASH=${{ env.SNAPSHOT }}
         workdir: ./
         snapshot: true
