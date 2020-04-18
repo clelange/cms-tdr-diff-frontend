@@ -12,12 +12,16 @@ jobs:
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-6)
           SNAPSHOT_TAG="${TIMESTAMP}${SHORT_SHA}"
           echo ::set-output name=SNAPSHOT::"${SNAPSHOT_TAG}"
+          echo ${{ env.SNAPSHOT }}
+          echo SNAPSHOT
     - name: Build and push frontend
       uses: elgohr/Publish-Docker-Github-Action@master
+      env:
+        SNAPSHOT: ${{ env.SNAPSHOT }}
       with:
         name: clelange/tdr-diff-client
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        buildargs: SNAPSHOT=${{ env.SNAPSHOT }}
+        buildargs: SNAPSHOT
         workdir: ./
         snapshot: true
