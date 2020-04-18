@@ -1,4 +1,4 @@
-FROM node:12.12.0-alpine
+FROM node:13.13.0-alpine
 
 ARG SNAPSHOT_TAG="local"
 ENV BUILD_HASH ${SNAPSHOT_TAG}
