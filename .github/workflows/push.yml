@@ -8,9 +8,9 @@ jobs:
     - uses: actions/checkout@master
     - name: Define variables
       run: |
-          local TIMESTAMP=`date +%Y%m%d%H%M%S`
-          local SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-6)
-          local SNAPSHOT_TAG="${TIMESTAMP}${SHORT_SHA}"
+          TIMESTAMP=`date +%Y%m%d%H%M%S`
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-6)
+          SNAPSHOT_TAG="${TIMESTAMP}${SHORT_SHA}"
           echo ::set-output name=SNAPSHOT::"${SNAPSHOT_TAG}"
     - name: Build and push frontend
       uses: elgohr/Publish-Docker-Github-Action@master
