@@ -13,7 +13,13 @@ jobs:
           SNAPSHOT_TAG="${TIMESTAMP}${SHORT_SHA}"
           echo ::set-output name=SNAPSHOT::"${SNAPSHOT_TAG}"
           echo ${{ env.SNAPSHOT }}
-          echo SNAPSHOT
+          echo $SNAPSHOT
+    - name: Test variables
+      env:
+        SNAPSHOT: ${{ env.SNAPSHOT }}
+      run: |
+          echo ${{ env.SNAPSHOT }}
+          echo $SNAPSHOT
     - name: Build and push frontend
       uses: elgohr/Publish-Docker-Github-Action@master
       env:
