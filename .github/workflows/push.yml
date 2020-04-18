@@ -7,23 +7,20 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Define variables
+      id: var-def
       run: |
           TIMESTAMP=`date +%Y%m%d%H%M%S`
-          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-6)
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-6)
           SNAPSHOT_TAG="${TIMESTAMP}${SHORT_SHA}"
-          echo ::set-output name=SNAPSHOT::"${SNAPSHOT_TAG}"
-          echo ${{ env.SNAPSHOT }}
-          echo $SNAPSHOT
+          echo "${SNAPSHOT_TAG}"
+          echo ::set-output name=snapshot-tag::"${SNAPSHOT_TAG}"
     - name: Test variables
-      env:
-        SNAPSHOT: ${{ env.SNAPSHOT }}
       run: |
-          echo ${{ env.SNAPSHOT }}
-          echo $SNAPSHOT
+          echo ${{ steps.var-def.outputs.snapshot-tag }}
     - name: Build and push frontend
       uses: elgohr/Publish-Docker-Github-Action@master
       env:
-        SNAPSHOT: ${{ env.SNAPSHOT }}
+        SNAPSHOT: ${{ steps.var-def.outputs.snapshot-tag }}
       with:
         name: clelange/tdr-diff-client
         username: ${{ secrets.DOCKER_USERNAME }}
