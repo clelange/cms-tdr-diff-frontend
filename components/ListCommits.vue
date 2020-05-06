@@ -10,28 +10,13 @@
           :href="$store.state.commits.projectInfo.web_url"
         >{{ $store.state.commits.projectInfo.web_url }}</a>
       </h2>
-      <p>You can filter by commit title and author name using the search box below. This will also show matches from other pages. It might also be useful to sort by date of last activity. Only commits of the last 90 days are shown.</p>
       <p>
-        Select two commits, then hit the submit button to trigger the PDF diff pipeline. You can find the status of your jobs on the
+        Select two commits (rows), then hit the submit button to trigger the PDF diff pipeline. You can find the status of your jobs on the
         <nuxt-link to="/statusboard">Status Board</nuxt-link> page.
       </p>
+      <p>You can filter the table entries by commit hash, commit title, and author name using the search boxes in the respective table columns below. This will also show matches from other pages. For papers and PAS, you can also only show the commits that correspond to a version upload via CADI. It might also be useful to sort by commit date.</p>
     </section>
-    <div>
-      <nav class="panel">
-        <div class="panel-block">
-          <b-field label="Filter by ID, Commit title, or Author name">
-            <p class="control has-icons-left">
-              <b-input v-model="search_query" type="text" icon="magnify" placeholder="search"></b-input>
-              <span class="icon is-small is-left">
-                <i class="fas fa-search" aria-hidden="true"></i>
-              </span>
-            </p>
-          </b-field>
-        </div>
-      </nav>
-    </div>
 
-    <!-- <span>{{ checkedRows }}</span> -->
     <div class="notification">
       <b-button
         v-for="(item, key, index) in checkedRows"
@@ -48,18 +33,16 @@
       >Submit</b-button>
     </div>
     <section>
-      <b-field grouped group-multiline>
-        <button
-          class="button field is-danger"
-          @click="checkedRows = []"
-          :disabled="!checkedRows.length"
-        >
-          <b-icon icon="close"></b-icon>
-          <span>Clear selected</span>
-        </button>
-      </b-field>
       <b-tabs>
         <b-field grouped group-multiline>
+          <button
+            class="button field is-danger"
+            @click="checkedRows = []"
+            :disabled="!checkedRows.length"
+          >
+            <b-icon icon="close"></b-icon>
+            <span>Clear selected</span>
+          </button>
           <b-select v-model="perPage" :disabled="!isPaginated">
             <option value="10">10 per page</option>
             <option value="20">20 per page</option>
@@ -68,8 +51,14 @@
           <div class="control is-flex">
             <b-switch v-model="isPaginated">Paginated</b-switch>
           </div>
+          <div class="control is-flex"></div>
+          <div class="control is-flex">
+            <b-switch v-model="onlyCADI">Show only CADI versions</b-switch>
+          </div>
+          <div class="control is-flex"></div>
         </b-field>
         <b-table
+          ref="commitsTable"
           :data="filtered"
           :paginated="isPaginated"
           :per-page="perPage"
@@ -92,20 +81,32 @@
               label="ID"
               width="40"
               sortable
-              numeric
+              searchable
             >{{ props.row.short_id }}</b-table-column>
-            <b-table-column field="title" label="Commit title" sortable>{{ props.row.title }}</b-table-column>
-            <b-table-column field="created_at" label="Commit date" centered sortable>
-              <span
-                :class="
-            [
-                'tag',
-                {'is-danger': ($dateFns.differenceInDays(new Date(), new Date(props.row.created_at)) >= 7) },
-                {'is-success': ($dateFns.differenceInDays(new Date(), new Date(props.row.created_at)) < 7) }
-            ]"
-              >{{ $dateFns.format(new Date(props.row.created_at), 'dd/MM/yyyy') }}</span>
-            </b-table-column>
-            <b-table-column field="author_name" label="Author name">{{ props.row.author_name }}</b-table-column>
+            <b-table-column
+              field="CADI"
+              label="CADI tag"
+              width="120"
+              centered
+              sortable
+            >{{ props.row.CADI ? "&#10004;" : "" }}</b-table-column>
+            <b-table-column
+              field="title"
+              label="Commit title"
+              sortable
+              searchable
+            >{{ props.row.title }}</b-table-column>
+            <b-table-column
+              field="created_at"
+              label="Commit date"
+              centered
+              sortable
+            >{{ $dateFns.format(new Date(props.row.created_at), 'dd/MM/yyyy') }}</b-table-column>
+            <b-table-column
+              field="author_name"
+              label="Author name"
+              searchable
+            >{{ props.row.author_name }}</b-table-column>
             <b-table-column field="author_email" label="Author email">{{ props.row.author_email }}</b-table-column>
           </template>
           <template slot="empty">
@@ -133,6 +134,7 @@ export default {
       search_query: '',
       perPage: 10,
       isPaginated: true,
+      onlyCADI: false,
       checkedRows: [],
       isSubmitted: false,
       commitList: [],
@@ -141,27 +143,34 @@ export default {
   },
   computed: {
     filtered() {
-      var query = this.search_query
-      while (query.endsWith('\\')) {
-        query = query.slice(0, query.lastIndexOf('\\') - 1)
+      if (!this.onlyCADI) {
+        return this.commitList
       }
-      var name_re = new RegExp(query, 'i')
-      const myCommitList = this.commitList
-      var tableData = []
-      for (var i in myCommitList) {
-        if (
-          myCommitList[i].short_id.match(name_re) ||
-          myCommitList[i].title.match(name_re) ||
-          myCommitList[i].author_name.match(name_re)
-        ) {
-          tableData.push(myCommitList[i])
+      else {
+        const myCommitList = this.commitList
+        var tableData = []
+        for (var i in this.commitList) {
+          if (myCommitList[i].CADI) {
+            tableData.push(myCommitList[i])
+          }
         }
+        return tableData
       }
-      return tableData
     }
   },
   mounted() {
     this.commitList = this.$store.state.commits.commitList
+    for (var i in this.commitList) {
+        if (
+          this.commitList[i].tag.startsWith("CADI-BuildTag_")
+        ) {
+          this.commitList[i].CADI = true
+        }
+        else {
+          this.commitList[i].CADI = false
+        }
+      }
+    console.log(this.commitList)
   },
   methods: {
     removeElement(index) {
@@ -205,7 +214,7 @@ export default {
       })
       const sorted = this.checkedRows.sort(this.compare)
       // older comes first
-      console.log(sorted, sorted[0].short_id, sorted[1].short_id)
+      // console.log(sorted, sorted[0].short_id, sorted[1].short_id)
       const postDict = {
         sha1: sorted[0].id,
         sha2: sorted[1].id,
