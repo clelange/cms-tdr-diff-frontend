@@ -1,3 +1,6 @@
 export default async ({ store }) => {
-    await store.dispatch("loadTdr")
-  }
+  await Promise.all([
+    store.dispatch('getBackendVersion'),
+    store.dispatch('loadTdr'),
+  ])
+}

@@ -2,6 +2,7 @@
 export const state = () => ({
   tdrTypes: [],
   apiStatus: null,
+  backendVersion: "undefined",
 })
 
 export const actions = {
@@ -19,6 +20,17 @@ export const actions = {
         commit('setApiStatus', 'bad')
       }
     )
+  },
+  async getBackendVersion({ state, commit }) {
+    await this.$axios.$get('/version').then(
+      version => {
+        commit('setBackendVersion', version)
+      },
+      (err) => {
+        console.log(err)
+        commit('setBackendVersion', 'undefined')
+      }
+    )
   }
 }
 
@@ -28,5 +40,8 @@ export const mutations = {
   },
   setApiStatus(state, status) {
     state.apiStatus = status
+  },
+  setBackendVersion(state, payload) {
+    state.getBackendVersion = payload.SnapshotTag
   }
 }

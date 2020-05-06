@@ -4,7 +4,9 @@
       <p>
         <strong>CMS TDR Diff</strong> by
         <a href="https://cern.ch/clange">Clemens Lange</a>.
-        Version hash {{ this.$env.BUILD_HASH || "undefined" }}. Please report issues and feature requests in the
+        Frontend: {{ this.$env.BUILD_HASH || "undefined" }}.
+        Backend: {{ backendVersion }}.
+        Please report issues and feature requests in the
         <a href="https://github.com/clelange/cms-tdr-diff-frontend/issues">GitHub repository</a>.
       </p>
     </div>
@@ -12,7 +14,13 @@
 </template>
 
 <script>
-export default {}
+import { mapState } from 'vuex'
+
+export default {
+  computed: {
+    ...mapState(['backendVersion'])
+  }
+}
 </script>
 
 <style>
