@@ -42,6 +42,6 @@ export const mutations = {
     state.apiStatus = status
   },
   setBackendVersion(state, payload) {
-    state.getBackendVersion = payload.SnapshotTag
+    state.backendVersion = payload.SnapshotTag
   }
 }
