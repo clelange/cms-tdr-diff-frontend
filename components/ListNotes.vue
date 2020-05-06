@@ -5,7 +5,7 @@
     <section class="section">
       <h1 class="title is-3">{{ categoryName }}</h1>
       <!-- <h2 class="subtitle is-4">Actions:</h2> -->
-      <p>You can filter by ID/name using the search box below. This will show matches for the full category, i.e. not only the ones shown on the respective page. If you would like to see all analyses/matches, you can also disable pagination. It might also be useful to sort by name instead of date of last activity.</p>
+      <p>You can filter by CADI ID/name using the search box below. This will show matches for the full category, i.e. not only the ones shown on the respective page. If you would like to see all analyses/matches, you can also disable pagination. It might also be useful to sort by name instead of date of last activity.</p>
       <p>Once you have found the desired analysis, click on its name.</p>
     </section>
 
@@ -61,7 +61,7 @@
                 {'is-danger': ($dateFns.differenceInDays(new Date(), new Date(props.row.last_activity_at)) >= 7) },
                 {'is-success': ($dateFns.differenceInDays(new Date(), new Date(props.row.last_activity_at)) < 7) }
             ]"
-                >{{ $dateFns.formatDistanceToNow(new Date(props.row.last_activity_at)) }}</span>
+                >{{ $dateFns.formatDistanceToNow(new Date(props.row.last_activity_at)) }} ago</span>
               </b-table-column>
               <b-table-column field="description" label="Description">{{ props.row.description }}</b-table-column>
               <b-table-column field="web_url" label="GitLab repository">
