@@ -13,8 +13,8 @@
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {
-    "@oruga-ui/oruga-next": "^0.8.9",
-    "@oruga-ui/theme-bulma": "^0.8.9",
+    "@oruga-ui/oruga-next": "^0.12.0",
+    "@oruga-ui/theme-bulma": "latest",
     "@vueuse/core": "^10.9.0",
     "date-fns": "^3.3.1",
     "nuxt": "^3.11.2",
