@@ -1,63 +1,67 @@
 <template>
   <div>
-    <b-loading :active.sync="isLoading" :can-cancel="false"></b-loading>
+    <o-loading :active="isLoading" :full-page="false" :can-cancel="false"></o-loading>
     <section class="section">
-      <h1 class="title is-3">{{ categoryName }} / {{ $store.state.commits.projectInfo.name }}</h1>
+      <h1 class="title is-3">{{ categoryName }} / {{ projectInfo?.name }}</h1>
       <h2 class="subtitle is-6">
-        description: {{ $store.state.commits.projectInfo.description }}
-        <br />repository:
-        <a
-          :href="$store.state.commits.projectInfo.web_url"
-        >{{ $store.state.commits.projectInfo.web_url }}</a>
+        description: {{ projectInfo?.description }}
+        <br />
+        repository:
+        <a :href="projectInfo?.web_url">{{ projectInfo?.web_url }}</a>
       </h2>
       <p>
-        Select two commits (rows), then hit the submit button to trigger the PDF diff pipeline. You can find the status of your jobs on the
-        <nuxt-link to="/statusboard">Status Board</nuxt-link> page.
+        Select two commits (rows), then hit the submit button to trigger the PDF diff
+        pipeline. You can find the status of your jobs on the
+        <nuxt-link to="/statusboard">Status Board</nuxt-link>
+        page.
       </p>
-      <p>You can filter the table entries by commit hash, commit title, and author name using the search boxes in the respective table columns below. This will also show matches from other pages. For papers and PAS, you can also only show the commits that correspond to a version upload via CADI. It might also be useful to sort by commit date.</p>
     </section>
 
     <div class="notification">
-      <b-button
-        v-for="(item, key, index) in checkedRows"
+      <o-button
+        v-for="(item, index) in checkedRows"
         v-on:click="removeElement(index)"
         :key="index"
-        type="is-info"
+        variant="info"
         icon-right="delete"
-      >{{ item.short_id }}</b-button>
-      <b-button
-        type="is-primary"
-        size="is-large"
-        v-bind:disabled="checkedRows.length != 2 || isSubmitted == true"
+      >
+        {{ item.short_id }}
+      </o-button>
+      <o-button
+        variant="primary"
+        size="large"
+        :disabled="checkedRows.length != 2 || isSubmitted == true"
         @click="submitJob()"
-      >Submit</b-button>
+      >
+        Submit
+      </o-button>
     </div>
     <section>
-      <b-tabs>
-        <b-field grouped group-multiline>
+      <o-tabs>
+        <o-field grouped group-multiline>
           <button
             class="button field is-danger"
             @click="checkedRows = []"
             :disabled="!checkedRows.length"
           >
-            <b-icon icon="close"></b-icon>
+            <o-icon icon="close"></o-icon>
             <span>Clear selected</span>
           </button>
-          <b-select v-model="perPage" :disabled="!isPaginated">
+          <o-select v-model="perPage" :disabled="!isPaginated">
             <option value="10">10 per page</option>
             <option value="20">20 per page</option>
             <option value="50">50 per page</option>
-          </b-select>
+          </o-select>
           <div class="control is-flex">
-            <b-switch v-model="isPaginated">Paginated</b-switch>
+            <o-switch v-model="isPaginated">Paginated</o-switch>
           </div>
           <div class="control is-flex"></div>
           <div class="control is-flex">
-            <b-switch v-model="onlyCADI">Show only CADI versions</b-switch>
+            <o-switch v-model="onlyCADI">Show only CADI versions</o-switch>
           </div>
           <div class="control is-flex"></div>
-        </b-field>
-        <b-table
+        </o-field>
+        <o-table
           ref="commitsTable"
           :data="filtered"
           :paginated="isPaginated"
@@ -68,172 +72,147 @@
           sort-icon="chevron-up"
           default-sort-direction="asc"
           :default-sort="['created_at', 'desc']"
-          :checked-rows.sync="checkedRows"
+          :checked-rows="checkedRows"
           checkable
           :header-checkable="false"
           checkbox-position="left"
           style="width:90vw;"
           @click="(row) => toggleSelected(row)"
         >
-          <template slot-scope="props">
-            <b-table-column
+          <template #default="{ row }">
+            <o-table-column
               field="short_id"
               label="ID"
               width="40"
               sortable
-              searchable
-            >{{ props.row.short_id }}</b-table-column>
-            <b-table-column
-              field="CADI"
-              label="CADI tag"
-              width="120"
-              centered
-              sortable
-            >{{ props.row.CADI ? "&#10004;" : "" }}</b-table-column>
-            <b-table-column
-              field="title"
-              label="Commit title"
-              sortable
-              searchable
-            >{{ props.row.title }}</b-table-column>
-            <b-table-column
+            >
+              {{ row.short_id }}
+            </o-table-column>
+            <o-table-column field="CADI" label="CADI tag" width="120" centered sortable>
+              {{ row.CADI ? '&#10004;' : '' }}
+            </o-table-column>
+            <o-table-column field="title" label="Commit title" sortable>
+              {{ row.title }}
+            </o-table-column>
+            <o-table-column
               field="created_at"
               label="Commit date"
               centered
               sortable
-            >{{ $dateFns.format(new Date(props.row.created_at), 'dd/MM/yyyy') }}</b-table-column>
-            <b-table-column
-              field="author_name"
-              label="Author name"
-              searchable
-            >{{ props.row.author_name }}</b-table-column>
-            <b-table-column field="author_email" label="Author email">{{ props.row.author_email }}</b-table-column>
+            >
+              {{ format(new Date(row.created_at), 'dd/MM/yyyy') }}
+            </o-table-column>
+            <o-table-column field="author_name" label="Author name">
+              {{ row.author_name }}
+            </o-table-column>
+            <o-table-column field="author_email" label="Author email">
+              {{ row.author_email }}
+            </o-table-column>
           </template>
-          <template slot="empty">
+          <template #empty>
             <section class="section">
               <div class="content has-text-grey has-text-centered">
                 <p>
-                  <b-icon icon="emoticon-sad" size="is-large"></b-icon>
+                  <o-icon icon="emoticon-sad" size="large"></o-icon>
                 </p>
                 <p>No commits found in the last 90 days.</p>
               </div>
             </section>
           </template>
-        </b-table>
-      </b-tabs>
+        </o-table>
+      </o-tabs>
     </section>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      isLoading: !this.$store.state.apiStatus,
-      categoryName: this.$route.params.pathMatch.split('/')[0],
-      search_query: '',
-      perPage: 10,
-      isPaginated: true,
-      onlyCADI: false,
-      checkedRows: [],
-      isSubmitted: false,
-      commitList: [],
-      currentPipeline: null
-    }
-  },
-  computed: {
-    filtered() {
-      if (!this.onlyCADI) {
-        return this.commitList
-      }
-      else {
-        const myCommitList = this.commitList
-        var tableData = []
-        for (var i in this.commitList) {
-          if (myCommitList[i].CADI) {
-            tableData.push(myCommitList[i])
-          }
-        }
-        return tableData
-      }
-    }
-  },
-  mounted() {
-    this.commitList = this.$store.state.commits.commitList
-    for (var i in this.commitList) {
-        if (
-          this.commitList[i].tag.startsWith("CADI-BuildTag_")
-        ) {
-          this.commitList[i].CADI = true
-        }
-        else {
-          this.commitList[i].CADI = false
-        }
-      }
-    console.log(this.commitList)
-  },
-  methods: {
-    removeElement(index) {
-      this.checkedRows.splice(index, 1)
-      this.isSubmitted = false
-    },
-    toggleSelected(row) {
-      const index = this.checkedRows.findIndex(p => p.short_id == row.short_id)
-      console.log(row, index)
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useMainStore, useCommitsStore, useJobsStore } from '~/stores'
+import { format } from 'date-fns'
 
-      if (index >= 0) {
-        this.checkedRows.splice(index, 1)
-      } else {
-        this.checkedRows.push(row)
-      }
-      this.isSubmitted = false
-    },
-    success(payload) {
-      this.$buefy.toast.open({
-        duration: 8000,
-        message:
-          payload.status + ' Pipeline ID: ' + payload.pipeline_id.toString(),
-        type: 'is-success'
-      })
-    },
-    compare(a, b) {
-      const timeA = new Date(a.created_at)
-      const timeB = new Date(b.created_at)
-      let comparison = 0
-      if (timeA < timeB) {
-        return 1
-      } else return -1
-    },
-    async submitJob() {
-      this.isSubmitted = true
-      this.$buefy.toast.open({
-        duration: 5000,
-        message:
-          'Submitting job to GitLab',
-        type: 'is-info'
-      })
-      const sorted = this.checkedRows.sort(this.compare)
-      // older comes first
-      // console.log(sorted, sorted[0].short_id, sorted[1].short_id)
-      const postDict = {
-        sha1: sorted[0].id,
-        sha2: sorted[1].id,
-        group: this.categoryName,
-        project: this.$store.state.commits.projectInfo.name
-      }
-      // this.$axios.setToken(this.$env.REQUEST_TOKEN)
-      await this.$axios
-        .$post('/trigger', postDict)
-        .then(response => {
-          console.log(response.pipeline_id)
-          this.currentPipeline = response.pipeline_id
-          this.$store.dispatch('jobs/load', response.pipeline_id)
-          this.success(response)
-        })
-        .catch(error => {
-          console.log(error)
-        })
+const route = useRoute()
+const mainStore = useMainStore()
+const commitsStore = useCommitsStore()
+const jobsStore = useJobsStore()
+
+const { projectInfo } = storeToRefs(commitsStore)
+
+const isLoading = ref(!mainStore.apiStatus)
+const categoryName = ref((route.params.slug as string[])[0])
+const searchQuery = ref('')
+const perPage = ref(10)
+const isPaginated = ref(true)
+const onlyCADI = ref(false)
+const checkedRows = ref<any[]>([])
+const isSubmitted = ref(false)
+const commitList = ref<any[]>([])
+const currentPipeline = ref<number | null>(null)
+
+const filtered = computed(() => {
+  if (!onlyCADI.value) {
+    return commitList.value
+  } else {
+    return commitList.value.filter(commit => commit.CADI)
+  }
+})
+
+onMounted(() => {
+  commitList.value = commitsStore.commitList
+  for (const commit of commitList.value) {
+    if (commit.tag?.startsWith('CADI-BuildTag_')) {
+      commit.CADI = true
+    } else {
+      commit.CADI = false
     }
+  }
+})
+
+const removeElement = (index: number) => {
+  checkedRows.value.splice(index, 1)
+  isSubmitted.value = false
+}
+
+const toggleSelected = (row: any) => {
+  const index = checkedRows.value.findIndex(p => p.short_id == row.short_id)
+  
+  if (index >= 0) {
+    checkedRows.value.splice(index, 1)
+  } else {
+    checkedRows.value.push(row)
+  }
+  isSubmitted.value = false
+}
+
+const compare = (a: any, b: any) => {
+  const timeA = new Date(a.created_at)
+  const timeB = new Date(b.created_at)
+  if (timeA < timeB) {
+    return 1
+  }
+  return -1
+}
+
+const submitJob = async () => {
+  isSubmitted.value = true
+  
+  const sorted = checkedRows.value.sort(compare)
+  const postDict = {
+    sha1: sorted[0].id,
+    sha2: sorted[1].id,
+    group: categoryName.value,
+    project: commitsStore.projectInfo?.name
+  }
+
+  try {
+    const response = await $fetch('/api/trigger', {
+      method: 'POST',
+      body: postDict
+    }) as { pipeline_id: number }
+    
+    currentPipeline.value = response.pipeline_id
+    await jobsStore.load(response.pipeline_id)
+  } catch (error) {
+    console.error(error)
   }
 }
 </script>

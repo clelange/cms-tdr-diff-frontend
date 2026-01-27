@@ -5,29 +5,31 @@
   "author": "Clemens Lange",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
+    "dev": "nuxt dev",
     "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate"
+    "start": "node .output/server/index.mjs",
+    "generate": "nuxt generate",
+    "lint": "eslint .",
+    "typecheck": "nuxi typecheck"
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.13.6",
-    "@nuxtjs/date-fns": "^1.3.0",
-    "@nuxtjs/proxy": "^1.3.3",
-    "@nuxtjs/style-resources": "^1.0.0",
-    "buefy": "^0.8.17",
-    "eslint": "^6.8.0",
-    "npm-check-updates": "^4.1.2",
-    "nuxt": "^2.15.8",
-    "nuxt-buefy": "^0.3.28",
-    "nuxt-env": "^0.1.0",
-    "nuxt-vuex-localstorage": "^1.2.9"
+    "@oruga-ui/oruga-next": "^0.8.9",
+    "@oruga-ui/theme-bulma": "^0.8.9",
+    "@vueuse/core": "^10.9.0",
+    "date-fns": "^3.3.1",
+    "nuxt": "^3.11.2",
+    "pinia": "^2.1.7"
   },
   "devDependencies": {
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.3",
-    "node-sass": "^7.0.0",
-    "prettier": "^2.0.5",
-    "sass-loader": "^8.0.2"
+    "@nuxt/eslint": "^0.3.10",
+    "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
+    "@types/node": "^20.11.30",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5",
+    "sass": "^1.72.0",
+    "typescript": "^5.4.3",
+    "vue-tsc": "^2.0.7"
   }
 }

@@ -9,7 +9,7 @@
         <h1 class="title">CMS paper and notes diff</h1>
         <h1>Choose a category to browse:</h1>
         <div class="links">
-          <span v-for="item in tdrTypes.names" :key="item">
+          <span v-for="item in tdrTypes" :key="item">
             <nuxt-link :to="item" class="button--grey">{{ item }}</nuxt-link>
           </span>
         </div>
@@ -21,22 +21,16 @@
   </div>
 </template>
 
-<script>
-import { mapState } from 'vuex'
-import CmsLogo from '~/components/CmsLogo.vue'
-import PageHeader from '~/components/Header.vue'
-import PageFooter from '~/components/Footer.vue'
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useMainStore } from '~/stores/main'
 
-export default {
-  components: {
-    CmsLogo,
-    PageHeader,
-    PageFooter
-  },
-  computed: {
-    ...mapState(['tdrTypes', 'apiStatus'])
-  }
-}
+const mainStore = useMainStore()
+const { tdrTypes, apiStatus } = storeToRefs(mainStore)
+
+onMounted(() => {
+  mainStore.loadTdr()
+})
 </script>
 
 <style>

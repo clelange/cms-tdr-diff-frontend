@@ -4,24 +4,26 @@
       <p>
         <strong>CMS TDR Diff</strong> by
         <a href="https://cern.ch/clange">Clemens Lange</a>.
-        Frontend: {{ this.$env.BUILD_HASH || "undefined" }}.
+        Frontend: {{ config.public.buildHash || 'undefined' }}.
         Backend: {{ backendVersion }}.
         Please report issues and feature requests in the
-        <a href="https://github.com/clelange/cms-tdr-diff-frontend/issues">GitHub repository</a>.
+        <a href="https://github.com/clelange/cms-tdr-diff-frontend/issues"
+          >GitHub repository</a
+        >.
       </p>
     </div>
   </footer>
 </template>
 
-<script>
-import { mapState } from 'vuex'
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useMainStore } from '~/stores/main'
 
-export default {
-  computed: {
-    ...mapState(['backendVersion'])
-  }
-}
+const config = useRuntimeConfig()
+const mainStore = useMainStore()
+const { backendVersion } = storeToRefs(mainStore)
+
+onMounted(() => {
+  mainStore.getBackendVersion()
+})
 </script>
-
-<style>
-</style>

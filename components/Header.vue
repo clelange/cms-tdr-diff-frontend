@@ -1,49 +1,54 @@
 <template>
-  <b-navbar>
-    <template slot="brand">
-      <b-navbar-item class="marker" to="/" tag="nuxt-link">
-        <b-icon icon="vector-difference" size="is-small" />CMS Paper Diff
-      </b-navbar-item>
+  <o-navbar>
+    <template #brand>
+      <o-navbar-item tag="NuxtLink" to="/">
+        <o-icon icon="vector-difference" size="small" />
+        CMS Paper Diff
+      </o-navbar-item>
     </template>
 
-    <template slot="start">
-      <b-navbar-item to="/" tag="nuxt-link">Home</b-navbar-item>
-      <b-navbar-item
-        v-for="item in tdrTypes.names"
+    <template #start>
+      <o-navbar-item tag="NuxtLink" to="/">Home</o-navbar-item>
+      <o-navbar-item
+        v-for="item in tdrTypes"
         :key="item"
-        :to="'/'+item"
-        tag="nuxt-link"
-      >{{ item }}</b-navbar-item>
-      <b-navbar-item to="/about" tag="nuxt-link">About</b-navbar-item>
+        tag="NuxtLink"
+        :to="`/${item}`"
+      >
+        {{ item }}
+      </o-navbar-item>
+      <o-navbar-item tag="NuxtLink" to="/about">About</o-navbar-item>
     </template>
 
-    <template slot="end">
-      <b-navbar-item href="#" onClick="window.location.reload();">
-        <h1 v-if="apiStatus === 'good'" style="color: green;" class="button">API status OK</h1>
-        <h1
-          v-else-if="apiStatus === 'bad'"
-          style="color: red;"
-          class="button"
-        >Cannot connect to backend API</h1>
+    <template #end>
+      <o-navbar-item href="#" @click.prevent="window.location.reload()">
+        <h1 v-if="apiStatus === 'good'" style="color: green;" class="button">
+          API status OK
+        </h1>
+        <h1 v-else-if="apiStatus === 'bad'" style="color: red;" class="button">
+          Cannot connect to backend API
+        </h1>
         <h1 v-else class="button">Loading...</h1>
-      </b-navbar-item>
-      <b-navbar-item to="/statusboard" tag="nuxt-link">
+      </o-navbar-item>
+      <o-navbar-item tag="NuxtLink" to="/statusboard">
         <div class="buttons">
           <strong>Status Board</strong>
         </div>
-      </b-navbar-item>
+      </o-navbar-item>
     </template>
-  </b-navbar>
+  </o-navbar>
 </template>
 
-<script>
-import { mapState } from 'vuex'
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useMainStore } from '~/stores/main'
 
-export default {
-  computed: {
-    ...mapState(['apiStatus', 'tdrTypes'])
-  }
-}
+const mainStore = useMainStore()
+const { apiStatus, tdrTypes } = storeToRefs(mainStore)
+
+onMounted(() => {
+  mainStore.loadTdr()
+})
 </script>
 
 <style lang="scss" scoped>

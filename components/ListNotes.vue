@@ -1,43 +1,42 @@
 <template>
   <div>
-    <b-loading :active.sync="isLoading" :can-cancel="false"></b-loading>
-    <!-- <label>Filter by Name:</label> -->
+    <o-loading :active="isLoading" :full-page="false" :can-cancel="false"></o-loading>
     <section class="section">
       <h1 class="title is-3">{{ categoryName }}</h1>
-      <!-- <h2 class="subtitle is-4">Actions:</h2> -->
-      <p>You can filter by CADI ID/name using the search box below. This will show matches for the full category, i.e. not only the ones shown on the respective page. If you would like to see all analyses/matches, you can also disable pagination. It might also be useful to sort by name instead of date of last activity.</p>
-      <p>Once you have found the desired analysis, click on its name.</p>
+      <p>You can filter by CADI ID/name using the search box below.</p>
     </section>
 
     <nav class="panel">
       <div class="panel-block">
-        <b-field label="Filter by name" label-position="on-border" grouped>
-          <b-input v-model="search_query" type="text" icon="magnify" placeholder="search"></b-input>
+        <o-field label="Filter by name" label-position="on-border" grouped>
+          <o-input v-model="searchQueryInput" type="text" icon="magnify" placeholder="search"></o-input>
           <p class="control">
             <button
               class="button is-primary"
               size="is-medium"
-              v-bind:disabled="search_query == ''"
+              :disabled="searchQueryInput == ''"
               @click="clearSearchQuery()"
-            >Clear filter</button>
+            >
+              Clear filter
+            </button>
           </p>
-        </b-field>
+        </o-field>
       </div>
     </nav>
     <div>
       <section>
-        <b-tabs>
-          <b-field grouped group-multiline>
-            <b-select v-model="perPage" :disabled="!isPaginated">
+        <o-tabs>
+          <o-field grouped group-multiline>
+            <o-select v-model="perPage" :disabled="!isPaginated">
               <option value="10">10 per page</option>
               <option value="20">20 per page</option>
               <option value="50">50 per page</option>
-            </b-select>
+            </o-select>
             <div class="control is-flex">
-              <b-switch v-model="isPaginated">Paginated</b-switch>
+              <o-switch v-model="isPaginated">Paginated</o-switch>
             </div>
-          </b-field>
-          <b-table
+          </o-field>
+          <o-table
             :data="filtered"
             :paginated="isPaginated"
             :per-page="perPage"
@@ -48,78 +47,70 @@
             :default-sort="['last_activity_at', 'desc']"
             sort-icon="chevron-up"
           >
-            <template slot-scope="props">
-              <b-table-column field="id" label="ID" width="40" sortable numeric>{{ props.row.id }}</b-table-column>
-              <b-table-column field="name" label="Name" sortable>
-                <nuxt-link :to="props.row.name" append>{{ props.row.name }}</nuxt-link>
-              </b-table-column>
-              <b-table-column field="last_activity_at" label="Last activity" centered sortable>
-                <span
-                  :class="
-            [
-                'tag',
-                {'is-danger': ($dateFns.differenceInDays(new Date(), new Date(props.row.last_activity_at)) >= 7) },
-                {'is-success': ($dateFns.differenceInDays(new Date(), new Date(props.row.last_activity_at)) < 7) }
-            ]"
-                >{{ $dateFns.formatDistanceToNow(new Date(props.row.last_activity_at)) }} ago</span>
-              </b-table-column>
-              <b-table-column field="description" label="Description">{{ props.row.description }}</b-table-column>
-              <b-table-column field="web_url" label="GitLab repository">
-                <a :href="props.row.web_url">{{ props.row.web_url }}</a>
-              </b-table-column>
+            <template #default="{ row }">
+              <o-table-column field="id" label="ID" width="40" sortable numeric>{{ row.id }}</o-table-column>
+              <o-table-column field="name" label="Name" sortable>
+                <nuxt-link :to="row.name" append>{{ row.name }}</nuxt-link>
+              </o-table-column>
+              <o-table-column field="last_activity_at" label="Last activity" centered sortable>
+                <span :class="[
+                  'tag',
+                  {'is-danger': differenceInDays(new Date(), new Date(row.last_activity_at)) >= 7},
+                  {'is-success': differenceInDays(new Date(), new Date(row.last_activity_at)) < 7}
+                ]">
+                  {{ formatDistanceToNow(new Date(row.last_activity_at)) }} ago
+                </span>
+              </o-table-column>
+              <o-table-column field="description" label="Description">{{ row.description }}</o-table-column>
+              <o-table-column field="web_url" label="GitLab repository">
+                <a :href="row.web_url">{{ row.web_url }}</a>
+              </o-table-column>
             </template>
-          </b-table>
-        </b-tabs>
+          </o-table>
+        </o-tabs>
       </section>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      isLoading: !this.$store.state.apiStatus,
-      categoryName: this.$route.params.pathMatch.split('/')[0],
-      // search_query: this.$store.state.preferences.search_query,
-      perPage: 10,
-      isPaginated: true
-    }
-  },
-  computed: {
-    search_query: {
-      get() {
-        return this.$store.state.preferences.search_query
-      },
-      set(value) {
-        this.$store.commit('preferences/updateSearchQuery', value)
-      }
-    },
-    filtered() {
-      var query = this.$store.state.preferences.search_query
-      while (query.endsWith('\\')) {
-        query = query.slice(0, query.lastIndexOf('\\') - 1)
-      }
-      var name_re = new RegExp(query, 'i')
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { usePreferencesStore, useProjectsStore } from '~/stores'
+import { formatDistanceToNow, differenceInDays } from 'date-fns'
 
-      const myProject = this.$store.state.projects.myProjects
-      var tableData = []
-      for (var i in myProject) {
-        if (myProject[i].name.match(name_re)) {
-          tableData.push(myProject[i])
-        }
-      }
-      return tableData
-    },
-    loaded() {
-      return this.$store.state.jobs.status
-    }
-  },
-  methods: {
-    clearSearchQuery() {
-      this.search_query = ''
-    }
+const route = useRoute()
+const projectsStore = useProjectsStore()
+const preferencesStore = usePreferencesStore()
+
+const { myProjects } = storeToRefs(projectsStore)
+const { searchQuery } = storeToRefs(preferencesStore)
+
+const isLoading = ref(!projectsStore.myProjects.length)
+const categoryName = ref((route.params.slug as string[])[0])
+const perPage = ref(10)
+const isPaginated = ref(true)
+
+const searchQueryInput = computed({
+  get: () => searchQuery.value,
+  set: (value) => {
+    preferencesStore.setSearchQuery(value)
   }
+})
+
+const filtered = computed(() => {
+  let query = searchQuery.value
+  while (query.endsWith('\\')) {
+    query = query.slice(0, query.lastIndexOf('\\') - 1)
+  }
+  const nameRe = new RegExp(query, 'i')
+
+  return myProjects.value.filter(project => 
+    project.name.match(nameRe)
+  )
+})
+
+const clearSearchQuery = () => {
+  searchQueryInput.value = ''
 }
 </script>
 
