@@ -225,7 +225,7 @@
 - [x] Update to Node 20 LTS Alpine
 - [x] Multi-stage build for smaller image
 - [x] Configure environment variables
-- [x] Test build process
+- [ ] Test build process - PENDING: Build still failing with RollupError
 
 ### 8.2 Docker Compose Updates
 - [x] Create production compose file

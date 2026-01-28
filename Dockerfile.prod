@@ -19,9 +19,11 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files and install production dependencies only
+# Copy package files
 COPY package*.json ./
-RUN npm install && npm cache clean --force
+
+# Install dependencies
+RUN npm install --production=false && npm cache clean --force
 
 # Copy build output from builder
 COPY --from=builder /app/.output ./
