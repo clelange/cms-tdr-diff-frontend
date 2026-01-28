@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
 
-  modules: [],
+  modules: ['@pinia/nuxt'],
 
   css: [],
 
@@ -12,13 +12,9 @@ export default defineNuxtConfig({
     }
   },
 
-  nitro: {
-    devProxy: {
-      '/api': {
-        target: process.env.BACKEND_URL || 'http://localhost:8000',
-        changeOrigin: true,
-        prependPath: true
-      }
+  routeRules: {
+    '/api/**': {
+      proxy: (process.env.BACKEND_URL || 'http://localhost:8000').replace(/\/?$/, '/') + 'api/**'
     }
   },
 

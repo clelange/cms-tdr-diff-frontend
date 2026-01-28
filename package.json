@@ -15,6 +15,7 @@
   "dependencies": {
     "@oruga-ui/oruga-next": "^0.12.0",
     "@oruga-ui/theme-bulma": "latest",
+    "@pinia/nuxt": "^0.9.0",
     "@vueuse/core": "^10.9.0",
     "date-fns": "^3.3.1",
     "nuxt": "^3.11.2",
