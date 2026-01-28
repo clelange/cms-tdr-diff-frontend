@@ -13,8 +13,8 @@
           Start by choosing one of the available categories from the top left
           menu, then pick the document of your interest. You can filter the
           table entries by typing a part of the document name, e.g.
-          <b>18-002</b> will show B2G-18-002, BPH-18-002, etc. if available in
-          the chosen category.
+          <b>18-002</b> will show B2G-18-002, BPH-18-002, etc. if
+          available in the chosen category.
         </p>
         <p>
           By clicking on the document name, you will see a page that displays
@@ -23,10 +23,10 @@
           documents for the two chosen commits as well as the difference between
           them. Creating the three PDF files usually takes a few minutes. You
           can follow the progress on the
-          <nuxt-link to="/StatusBoard">Status Board</nuxt-link> linked from the
+          <nuxt-link to="/statusboard">Status Board</nuxt-link> linked from the
           top right of the page. Once the job has completed, a link will appear
-          on the <nuxt-link to="/StatusBoard">Status Board</nuxt-link> that will
-          allow you to download a zip file of the PDF files.
+          on the <nuxt-link to="/statusboard">Status Board</nuxt-link>
+          that will allow you to download a zip file of the PDF files.
         </p>
         <p>
           Please mind that parsing LateX programmatically is difficult and building
@@ -44,20 +44,21 @@
           Please let me know what you think about it: Drop me an email, or if
           you really like it,
           <a href="https://www.buymeacoffee.com/clange">buy me a tea</a>!
-          <br /><link
+          <br />
+          <link
             href="https://fonts.googleapis.com/css?family=Cookie"
             rel="stylesheet"
           /><a
             class="bmc-button"
             target="_blank"
             href="https://www.buymeacoffee.com/clange"
-            ><img
+          >
+            <img
               src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
               alt="Buy me a tea"
             /><span style="margin-left:15px;font-size:28px !important;"
               >Buy me a tea</span
-            ></a
-          >
+          ></a>
         </p>
       </div>
     </section>
@@ -65,20 +66,12 @@
   </div>
 </template>
 
-<script>
-import { mapState } from 'vuex'
-import PageHeader from '~/components/Header.vue'
-import PageFooter from '~/components/Footer.vue'
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useMainStore } from '~/stores'
 
-export default {
-  components: {
-    PageHeader,
-    PageFooter
-  },
-  computed: {
-    ...mapState(['tdrTypes', 'apiStatus'])
-  }
-}
+const mainStore = useMainStore()
+const { tdrTypes, apiStatus } = storeToRefs(mainStore)
 </script>
 
 <style>
@@ -136,7 +129,7 @@ export default {
   font-size: 22px !important;
   letter-spacing: 0.6px !important;
   box-shadow: 0px 1px 2px rgba(190, 190, 190, 0.5) !important;
-  -webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;
+  -webkit-box-shadow: 0px 1px 2px rgba(190, 190, 190, 0.5) !important;
   margin: 0 auto !important;
   font-family: 'Cookie', cursive !important;
   -webkit-box-sizing: border-box !important;
