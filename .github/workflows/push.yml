@@ -36,4 +36,4 @@ jobs:
           ghcr.io/clelange/cms-tdr-diff-frontend:${{ steps.var-def.outputs.snapshot-tag }}
         build-args: |
           SNAPSHOT=${{ steps.var-def.outputs.snapshot-tag }}
-        file: cms-tdr-diff-frontend/Dockerfile.prod
+        file: Dockerfile.prod
