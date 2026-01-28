@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useMainStore } from '@/stores'
+import { useMainStore } from '@/stores/main'
 
 const mainStore = useMainStore()
 const { tdrTypes, apiStatus } = storeToRefs(mainStore)

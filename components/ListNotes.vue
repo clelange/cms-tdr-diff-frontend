@@ -75,7 +75,8 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { usePreferencesStore, useProjectsStore } from '~/stores'
+import { usePreferencesStore } from '~/stores/preferences'
+import { useProjectsStore } from '~/stores/projects'
 import { formatDistanceToNow, differenceInDays } from 'date-fns'
 
 const route = useRoute()

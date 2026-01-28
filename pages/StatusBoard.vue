@@ -85,7 +85,8 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useMainStore, useJobsStore } from '~/stores'
+import { useMainStore } from '~/stores/main'
+import { useJobsStore } from '~/stores/jobs'
 import { formatDistanceToNow, differenceInSeconds } from 'date-fns'
 import { useIntervalFn } from '@vueuse/core'
 

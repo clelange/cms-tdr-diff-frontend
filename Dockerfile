@@ -1,4 +1,4 @@
-FROM node:13.13.0-alpine
+FROM node:20-alpine
 
 ARG SNAPSHOT="local"
 ENV BUILD_HASH=$SNAPSHOT

@@ -127,7 +127,9 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useMainStore, useCommitsStore, useJobsStore } from '~/stores'
+import { useMainStore } from '~/stores/main'
+import { useCommitsStore } from '~/stores/commits'
+import { useJobsStore } from '~/stores/jobs'
 import { format } from 'date-fns'
 
 const route = useRoute()
