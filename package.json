@@ -20,15 +20,6 @@
     "nuxt": "^3.11.2",
     "pinia": "^2.1.7"
   },
-  "dependencies": {
-    "@oruga-ui/oruga-next": "^0.12.0",
-    "@oruga-ui/theme-bulma": "latest",
-    "@vueuse/core": "^10.9.0",
-    "@pinia-plugin-persistedstate": "^4.1.1",
-    "date-fns": "^3.3.1",
-    "nuxt": "^3.11.2",
-    "pinia": "^2.1.7"
-  },
   "devDependencies": {
     "@nuxt/eslint": "^0.3.10",
     "@types/node": "^20.11.30",

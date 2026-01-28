@@ -1,8 +1,9 @@
-export default defineNuxtPlugin((nuxtApp) => {
-  const oruga = nuxtApp.vueApp.config.globalProperties.$oruga
+import { createOruga } from '@oruga-ui/oruga-next'
+import { bulmaConfig } from '@oruga-ui/theme-bulma'
 
-  oruga.config.setOptions({
-    iconPack: 'mdi',
-    iconComponent: 'o-icon'
-  })
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.vueApp.use(createOruga({
+    ...bulmaConfig,
+    iconPack: 'mdi'
+  }))
 })

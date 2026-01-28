@@ -2,11 +2,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
 
-  modules: [
-    '@oruga-ui/oruga-next',
-    '@oruga-ui/theme-bulma',
-    '@pinia-plugin-persistedstate/nuxt'
-  ],
+  modules: [],
 
   css: [],
 
@@ -38,7 +34,7 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css?family=Permanent+Marker&display=swap&text=CMS%20PaperDif'
+          href: 'https://fonts.googleapis.com/css?family=Permanent+Marker&display=swap&text=CMS%20PaperDiff'
         }
       ]
     },
