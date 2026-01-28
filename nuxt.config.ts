@@ -22,6 +22,19 @@ export default defineNuxtConfig({
     }
   },
 
+  vite: {
+    clearScreen: false,
+    optimizeDeps: {
+      include: [],
+      exclude: []
+    },
+    build: {
+      rollupOptions: {
+        external: ['vue', '@vueuse/core', '@oruga-ui/oruga-next', 'pinia']
+      }
+    }
+  },
+
   app: {
     head: {
       title: 'CMS TDR Diff',
