@@ -19,7 +19,7 @@
         <p>
           By clicking on the document name, you will see a page that displays
           all commits including their corresponding tags. Select two commits,
-          and hit submit. This will trigger a job in GitLab to generate the
+          and hit submit. This will trigger a job on the CERN OpenShift platform to generate the
           documents for the two chosen commits as well as the difference between
           them. Creating the three PDF files usually takes a few minutes. You
           can follow the progress on the

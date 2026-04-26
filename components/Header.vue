@@ -21,7 +21,7 @@
     </template>
 
     <template #end>
-      <o-navbar-item href="#" @click.prevent="window.location.reload()">
+      <o-navbar-item href="#" @click.prevent="reloadPage">
         <h1 v-if="apiStatus === 'good'" style="color: green;" class="button">
           API status OK
         </h1>
@@ -45,6 +45,10 @@ import { useMainStore } from '~/stores/main'
 
 const mainStore = useMainStore()
 const { apiStatus, tdrTypes } = storeToRefs(mainStore)
+
+const reloadPage = () => {
+  window.location.reload()
+}
 
 onMounted(() => {
   mainStore.loadTdr()

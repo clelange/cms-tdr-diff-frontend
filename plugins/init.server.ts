@@ -1,7 +1,7 @@
 import { useMainStore } from '~/stores/main'
 
-export default defineNuxtPlugin(async (nuxtApp) => {
-    const mainStore = useMainStore(nuxtApp.$pinia)
+export default defineNuxtPlugin(async () => {
+    const mainStore = useMainStore()
     await Promise.all([
         mainStore.getBackendVersion(),
         mainStore.loadTdr()

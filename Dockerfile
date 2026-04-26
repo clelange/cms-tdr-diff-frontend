@@ -1,16 +1,15 @@
-FROM node:20-alpine
+FROM node:24-alpine
 
 ARG SNAPSHOT="local"
 ENV BUILD_HASH=$SNAPSHOT
-ENV BACKEND_URL "http://localhost:8000/"
-# RUN npm install -g http-server
+ENV BACKEND_URL=http://localhost:8000/
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 
 RUN npm run build
 EXPOSE 3000
-ENV NUXT_HOST 0.0.0.0
-CMD [ "npm", "start" ]
-# CMD [ "npm", "run", "dev" ]
+ENV NITRO_HOST=0.0.0.0
+ENV NITRO_PORT=3000
+CMD ["node", ".output/server/index.mjs"]

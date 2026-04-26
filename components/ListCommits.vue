@@ -11,7 +11,7 @@
       </h2>
       <p>
         Select two commits (rows), then hit the submit button to trigger the PDF diff
-        pipeline. You can find the status of your jobs on the
+        job. You can find the status of your jobs on the
         <nuxt-link to="/statusboard">Status Board</nuxt-link>
         page.
       </p>
@@ -77,7 +77,7 @@
           :header-checkable="false"
           checkbox-position="left"
           style="width:90vw;"
-          @click="(row) => toggleSelected(row)"
+          @click="toggleSelected"
         >
           <template #default="{ row }">
             <o-table-column
@@ -148,7 +148,7 @@ const onlyCADI = ref(false)
 const checkedRows = ref<any[]>([])
 const isSubmitted = ref(false)
 const commitList = ref<any[]>([])
-const currentPipeline = ref<number | null>(null)
+const currentJob = ref<string | null>(null)
 
 const filtered = computed(() => {
   if (!onlyCADI.value) {
@@ -209,10 +209,10 @@ const submitJob = async () => {
     const response = await $fetch('/api/trigger', {
       method: 'POST',
       body: postDict
-    }) as { pipeline_id: number }
+    }) as { job_id: string }
     
-    currentPipeline.value = response.pipeline_id
-    await jobsStore.load(response.pipeline_id)
+    currentJob.value = response.job_id
+    await jobsStore.load(response.job_id)
   } catch (error) {
     console.error(error)
   }

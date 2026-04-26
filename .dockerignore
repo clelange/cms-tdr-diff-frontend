@@ -1,8 +1,8 @@
 node_modules
 .nuxt
 dist
+.output
 .git
 .github
 *.md
 !plan.md
-package-lock.json

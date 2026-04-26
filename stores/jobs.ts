@@ -1,69 +1,78 @@
 import { defineStore } from 'pinia'
 
 interface JobStatus {
-  id: number
+  id: string
+  job_name: string
+  project: string
+  group: string
   status: string
   duration: number
   created_at: string
-  artifacts_expire_at: string
-  web_url: string
-  artifacts: Array<{ filename: string }>
-}
-
-interface PipelineStatus {
-  pipelineId: number
-  jobStatus: JobStatus
+  started_at?: string
+  finished_at?: string
+  expires_at: string
+  download_url?: string
+  artifacts: Array<{ filename: string; url: string }>
+  failure_reason?: string
+  failure_message?: string
 }
 
 export const useJobsStore = defineStore('jobs', {
   state: () => ({
-    pipelineStatus: [] as PipelineStatus[],
+    jobs: [] as JobStatus[],
     status: false
   }),
 
   getters: {},
 
   actions: {
-    async load(pipelineId: number) {
-      const index = this.pipelineStatus.findIndex((p) => p.pipelineId === pipelineId)
+    async load(jobId: string) {
+      const index = this.jobs.findIndex((job) => job.id === jobId)
       if (index >= 0) {
-        console.log('Pipeline already in store:', pipelineId)
+        console.log('Job already in store:', jobId)
         return
       }
 
       try {
-        const response = await $fetch(`/api/status/pipeline/${pipelineId}`) as {
+        const response = await $fetch(`/api/jobs/${jobId}`) as {
           job_status: JobStatus
         }
-        this.pipelineStatus.push({
-          pipelineId,
-          jobStatus: response.job_status
-        })
+        this.jobs.push(response.job_status)
         this.status = true
       } catch (err) {
-        console.error('Error loading pipeline status:', err)
+        console.error('Error loading job status:', err)
+        throw err
+      }
+    },
+
+    async loadAll() {
+      try {
+        const response = await $fetch('/api/jobs') as { jobs: JobStatus[] }
+        this.jobs = response.jobs
+        this.status = true
+      } catch (err) {
+        console.error('Error loading jobs:', err)
         throw err
       }
     },
 
     async update() {
-      if (this.pipelineStatus.length < 1) {
-        console.log('No pipelines found')
+      if (this.jobs.length < 1) {
+        await this.loadAll()
         return
       }
 
-      for (const pipeline of this.pipelineStatus) {
-        const currentPipelineId = Number(pipeline.pipelineId)
+      for (const job of this.jobs) {
         try {
-          const response = await $fetch(`/api/status/pipeline/${currentPipelineId}`) as {
+          const response = await $fetch(`/api/jobs/${job.id}`) as {
             job_status: JobStatus
           }
-          const index = this.pipelineStatus.findIndex((p) => p.pipelineId === currentPipelineId)
+          const index = this.jobs.findIndex((storedJob) => storedJob.id === job.id)
           if (index >= 0) {
-            this.pipelineStatus[index].jobStatus = response.job_status
+            this.jobs[index] = response.job_status
           }
         } catch (err) {
-          console.error('Error updating pipeline:', err)
+          console.error('Error updating job:', err)
         }
       }
     }

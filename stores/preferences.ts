@@ -5,6 +5,7 @@ const STORAGE_KEY = 'preferences-storage'
 let initialized = false
 
 function restoreFromStorage(store: any) {
+  if (typeof localStorage === 'undefined') return
   const saved = localStorage.getItem(STORAGE_KEY)
   if (saved) {
     try {
@@ -18,6 +19,9 @@ function restoreFromStorage(store: any) {
 
 export const usePreferencesStore = defineStore('preferences', {
   state: () => {
+    if (typeof localStorage === 'undefined') {
+      return { searchQuery: '' }
+    }
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       try {
@@ -37,6 +41,7 @@ export const usePreferencesStore = defineStore('preferences', {
   actions: {
     setSearchQuery(query: string) {
       this.searchQuery = query
+      if (typeof localStorage === 'undefined') return
       const data = { searchQuery: this.searchQuery }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
     }

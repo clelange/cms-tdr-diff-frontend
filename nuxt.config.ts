@@ -7,14 +7,10 @@ export default defineNuxtConfig({
   css: [],
 
   runtimeConfig: {
+    backendUrl: process.env.BACKEND_URL || 'http://localhost:8000',
+    apiToken: process.env.API_TOKEN || '',
     public: {
       buildHash: process.env.BUILD_HASH || 'local'
-    }
-  },
-
-  routeRules: {
-    '/api/**': {
-      proxy: (process.env.BACKEND_URL || 'http://localhost:8000').replace(/\/?$/, '/') + 'api/**'
     }
   },
 
@@ -48,13 +44,5 @@ export default defineNuxtConfig({
       ]
     },
     pageTransition: { name: 'page', mode: 'out-in' }
-  },
-
-  loading: {
-    color: '#35495e',
-    height: '3px',
-    duration: 5000,
-    throttle: 200,
-    continuous: true
   }
 })
