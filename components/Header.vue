@@ -1,42 +1,59 @@
 <template>
-  <o-navbar>
-    <template #brand>
-      <o-navbar-item tag="NuxtLink" to="/">
-        <o-icon icon="vector-difference" size="small" />
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <NuxtLink class="navbar-item marker" to="/">
+        <o-icon icon="vector-difference" size="small" class="mr-1" />
         CMS Paper Diff
-      </o-navbar-item>
-    </template>
+      </NuxtLink>
 
-    <template #start>
-      <o-navbar-item tag="NuxtLink" to="/">Home</o-navbar-item>
-      <o-navbar-item
-        v-for="item in tdrTypes"
-        :key="item"
-        tag="NuxtLink"
-        :to="`/${item}`"
+      <button
+        class="navbar-burger"
+        :class="{ 'is-active': isMenuOpen }"
+        type="button"
+        aria-label="menu"
+        :aria-expanded="isMenuOpen"
+        @click="isMenuOpen = !isMenuOpen"
       >
-        {{ item }}
-      </o-navbar-item>
-      <o-navbar-item tag="NuxtLink" to="/about">About</o-navbar-item>
-    </template>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+    </div>
 
-    <template #end>
-      <o-navbar-item href="#" @click.prevent="reloadPage">
-        <h1 v-if="apiStatus === 'good'" style="color: green;" class="button">
-          API status OK
-        </h1>
-        <h1 v-else-if="apiStatus === 'bad'" style="color: red;" class="button">
-          Cannot connect to backend API
-        </h1>
-        <h1 v-else class="button">Loading...</h1>
-      </o-navbar-item>
-      <o-navbar-item tag="NuxtLink" to="/statusboard">
-        <div class="buttons">
-          <strong>Status Board</strong>
-        </div>
-      </o-navbar-item>
-    </template>
-  </o-navbar>
+    <div class="navbar-menu" :class="{ 'is-active': isMenuOpen }">
+      <div class="navbar-start">
+        <NuxtLink class="navbar-item" to="/">Home</NuxtLink>
+        <NuxtLink
+          v-for="item in tdrTypes"
+          :key="item"
+          class="navbar-item"
+          :to="`/${item}`"
+          @click="isMenuOpen = false"
+        >
+          {{ item }}
+        </NuxtLink>
+        <NuxtLink class="navbar-item" to="/about">About</NuxtLink>
+      </div>
+
+      <div class="navbar-end">
+        <button class="navbar-item api-status" type="button" @click="reloadPage">
+          <span v-if="apiStatus === 'good'" class="button has-text-success">
+            API status OK
+          </span>
+          <span v-else-if="apiStatus === 'bad'" class="button has-text-danger">
+            Cannot connect to backend API
+          </span>
+          <span v-else class="button">Loading...</span>
+        </button>
+        <NuxtLink class="navbar-item" to="/statusboard">
+          <div class="buttons">
+            <strong>Status Board</strong>
+          </div>
+        </NuxtLink>
+      </div>
+    </div>
+  </nav>
 </template>
 
 <script setup lang="ts">
@@ -45,14 +62,13 @@ import { useMainStore } from '~/stores/main'
 
 const mainStore = useMainStore()
 const { apiStatus, tdrTypes } = storeToRefs(mainStore)
+const isMenuOpen = ref(false)
 
 const reloadPage = () => {
   window.location.reload()
 }
 
-onMounted(() => {
-  mainStore.loadTdr()
-})
+await mainStore.loadTdr()
 </script>
 
 <style lang="scss" scoped>
@@ -60,5 +76,11 @@ onMounted(() => {
   font-family: 'Permanent Marker', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-weight: normal;
+}
+
+.api-status {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
 }
 </style>

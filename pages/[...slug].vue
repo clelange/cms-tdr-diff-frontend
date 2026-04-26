@@ -1,11 +1,9 @@
 <template>
   <div>
-    <page-header />
     <ClientOnly>
       <list-notes v-if="isCategoryPage" />
       <list-commits v-else />
     </ClientOnly>
-    <page-footer />
   </div>
 </template>
 

@@ -1,22 +1,14 @@
 <template>
-  <div>
+  <div class="container">
     <div>
-      <page-header />
-    </div>
-    <div class="container">
-      <div>
-        <cms-logo />
-        <h1 class="title">CMS paper and notes diff</h1>
-        <h1>Choose a category to browse:</h1>
-        <div class="links">
-          <span v-for="item in tdrTypes" :key="item">
-            <nuxt-link :to="item" class="button--grey">{{ item }}</nuxt-link>
-          </span>
-        </div>
+      <cms-logo />
+      <h1 class="title">CMS paper and notes diff</h1>
+      <h1>Choose a category to browse:</h1>
+      <div class="links">
+        <span v-for="item in tdrTypes" :key="item">
+          <NuxtLink :to="`/${item}`" class="button--grey">{{ item }}</NuxtLink>
+        </span>
       </div>
-    </div>
-    <div>
-      <page-footer />
     </div>
   </div>
 </template>
@@ -26,14 +18,12 @@ import { storeToRefs } from 'pinia'
 import { useMainStore } from '~/stores/main'
 
 const mainStore = useMainStore()
-const { tdrTypes, apiStatus } = storeToRefs(mainStore)
+const { tdrTypes } = storeToRefs(mainStore)
 
-onMounted(() => {
-  mainStore.loadTdr()
-})
+await mainStore.loadTdr()
 </script>
 
-<style>
+<style scoped>
 .container {
   margin: 0 auto;
   min-height: 100vh;

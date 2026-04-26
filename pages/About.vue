@@ -1,6 +1,5 @@
 <template>
   <div>
-    <page-header />
     <section class="hero">
       <div class="hero-body">
         <h1 class="title">Using this website</h1>
@@ -23,9 +22,9 @@
           documents for the two chosen commits as well as the difference between
           them. Creating the three PDF files usually takes a few minutes. You
           can follow the progress on the
-          <nuxt-link to="/statusboard">Status Board</nuxt-link> linked from the
+          <NuxtLink to="/statusboard">Status Board</NuxtLink> linked from the
           top right of the page. Once the job has completed, a link will appear
-          on the <nuxt-link to="/statusboard">Status Board</nuxt-link>
+          on the <NuxtLink to="/statusboard">Status Board</NuxtLink>
           that will allow you to download a zip file of the PDF files.
         </p>
         <p>
@@ -62,19 +61,10 @@
         </p>
       </div>
     </section>
-    <page-footer />
   </div>
 </template>
 
-<script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { useMainStore } from '@/stores/main'
-
-const mainStore = useMainStore()
-const { tdrTypes, apiStatus } = storeToRefs(mainStore)
-</script>
-
-<style>
+<style scoped>
 .container {
   margin: 0 auto;
   min-height: 100vh;

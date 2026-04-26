@@ -47,25 +47,30 @@
             :default-sort="['last_activity_at', 'desc']"
             sort-icon="chevron-up"
           >
-            <template #default="{ row }">
-              <o-table-column field="id" label="ID" width="40" sortable numeric>{{ row.id }}</o-table-column>
-              <o-table-column field="name" label="Name" sortable>
-                <nuxt-link :to="row.name" append>{{ row.name }}</nuxt-link>
-              </o-table-column>
-              <o-table-column field="last_activity_at" label="Last activity" centered sortable>
-                <span :class="[
+            <o-table-column field="id" label="ID" width="40" sortable numeric v-slot="props">
+              {{ props?.row?.id || '' }}
+            </o-table-column>
+            <o-table-column field="name" label="Name" sortable v-slot="props">
+              <NuxtLink v-if="props?.row?.name" :to="`/${categoryName}/${props.row.name}`">{{ props.row.name }}</NuxtLink>
+            </o-table-column>
+            <o-table-column field="last_activity_at" label="Last activity" centered sortable v-slot="props">
+              <span
+                v-if="props?.row?.last_activity_at"
+                :class="[
                   'tag',
-                  {'is-danger': differenceInDays(new Date(), new Date(row.last_activity_at)) >= 7},
-                  {'is-success': differenceInDays(new Date(), new Date(row.last_activity_at)) < 7}
-                ]">
-                  {{ formatDistanceToNow(new Date(row.last_activity_at)) }} ago
-                </span>
-              </o-table-column>
-              <o-table-column field="description" label="Description">{{ row.description }}</o-table-column>
-              <o-table-column field="web_url" label="GitLab repository">
-                <a :href="row.web_url">{{ row.web_url }}</a>
-              </o-table-column>
-            </template>
+                  {'is-danger': differenceInDays(new Date(), new Date(props.row.last_activity_at)) >= 7},
+                  {'is-success': differenceInDays(new Date(), new Date(props.row.last_activity_at)) < 7}
+                ]"
+              >
+                {{ formatDistanceToNow(new Date(props.row.last_activity_at)) }} ago
+              </span>
+            </o-table-column>
+            <o-table-column field="description" label="Description" v-slot="props">
+              {{ props?.row?.description || '' }}
+            </o-table-column>
+            <o-table-column field="web_url" label="GitLab repository" v-slot="props">
+              <a v-if="props?.row?.web_url" :href="props.row.web_url">{{ props.row.web_url }}</a>
+            </o-table-column>
           </o-table>
         </o-tabs>
       </section>

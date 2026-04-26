@@ -1,39 +1,39 @@
 <template>
   <div>
-    <div>
-      <page-header />
-    </div>
     <section class="section">
       <h1 class="title is-3">Job status board</h1>
     </section>
-    <section class="section">
-      <o-tabs>
-        <o-table
-          :data="filtered"
-          :loading="!loaded"
-          :hoverable="true"
-          :striped="true"
-          sort-icon="chevron-up"
-          default-sort-direction="asc"
-          :default-sort="['created_at_raw', 'desc']"
-          :header-checkable="false"
-          checkbox-position="left"
-          style="width:90vw;"
-        >
-          <template #default="{ row }">
+    <ClientOnly>
+      <section class="section">
+        <o-tabs>
+          <o-table
+            :data="filtered"
+            :loading="!loaded"
+            :hoverable="true"
+            :striped="true"
+            sort-icon="chevron-up"
+            default-sort-direction="asc"
+            :default-sort="['created_at_raw', 'desc']"
+            :header-checkable="false"
+            checkbox-position="left"
+            style="width:90vw;"
+          >
             <o-table-column
               field="jobId"
               label="Job ID"
               width="100"
               sortable
+              v-slot="props"
             >
-              {{ row.jobId }}
+              {{ props?.row?.jobId || '' }}
             </o-table-column>
-            <o-table-column field="project" label="Project" width="120" sortable>
-              {{ row.group }} / {{ row.project }}
+            <o-table-column field="project" label="Project" width="120" sortable v-slot="props">
+              <template v-if="props?.row">
+                {{ props.row.group }} / {{ props.row.project }}
+              </template>
             </o-table-column>
-            <o-table-column field="status" label="Status" width="40" sortable>
-              <span :class="row.status_style">{{ row.status }}</span>
+            <o-table-column field="status" label="Status" width="40" sortable v-slot="props">
+              <span v-if="props?.row" :class="props.row.status_style">{{ props.row.status }}</span>
             </o-table-column>
             <o-table-column
               field="created_at"
@@ -41,11 +41,14 @@
               width="200"
               centered
               sortable
+              v-slot="props"
             >
-              {{ row.created_at }} ago
+              <template v-if="props?.row">
+                {{ props.row.created_at }} ago
+              </template>
             </o-table-column>
-            <o-table-column field="duration" label="Duration" width="150" centered>
-              {{ row.duration }}
+            <o-table-column field="duration" label="Duration" width="150" centered v-slot="props">
+              {{ props?.row?.duration || '' }}
             </o-table-column>
             <o-table-column
               field="expires_at"
@@ -53,30 +56,28 @@
               width="150"
               centered
               sortable
+              v-slot="props"
             >
-              {{ row.expires_at }}
+              {{ props?.row?.expires_at || '' }}
             </o-table-column>
-            <o-table-column field="artifact" label="Diff output">
-              <a v-if="row.artifacts_link" :href="row.artifacts_link">{{ row.artifacts }}</a>
-              <span v-else>{{ row.artifacts }}</span>
+            <o-table-column field="artifact" label="Diff output" v-slot="props">
+              <a v-if="props?.row?.artifacts_link" :href="props.row.artifacts_link">{{ props.row.artifacts }}</a>
+              <span v-else>{{ props?.row?.artifacts || '' }}</span>
             </o-table-column>
-          </template>
-          <template #empty>
-            <section class="section">
-              <div class="content has-text-grey has-text-centered">
-                <p>
-                  <o-icon icon="emoticon-sad" size="large"></o-icon>
-                </p>
-                <p>No jobs found.</p>
-              </div>
-            </section>
-          </template>
-        </o-table>
-      </o-tabs>
-    </section>
-    <div>
-      <page-footer />
-    </div>
+            <template #empty>
+              <section class="section">
+                <div class="content has-text-grey has-text-centered">
+                  <p>
+                    <o-icon icon="emoticon-sad" size="large"></o-icon>
+                  </p>
+                  <p>No jobs found.</p>
+                </div>
+              </section>
+            </template>
+          </o-table>
+        </o-tabs>
+      </section>
+    </ClientOnly>
   </div>
 </template>
 
@@ -158,36 +159,3 @@ onMounted(async () => {
 
 useIntervalFn(updatePipelines, 15000)
 </script>
-
-<style>
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
-</style>

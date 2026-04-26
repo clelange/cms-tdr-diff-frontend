@@ -4,7 +4,7 @@ export default defineNuxtConfig({
 
   modules: ['@pinia/nuxt'],
 
-  css: [],
+  css: ['@oruga-ui/theme-bulma/style.css'],
 
   runtimeConfig: {
     backendUrl: process.env.BACKEND_URL || 'http://localhost:8000',
@@ -19,11 +19,6 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: [],
       exclude: []
-    },
-    build: {
-      rollupOptions: {
-        external: ['vue', '@vueuse/core', '@oruga-ui/oruga-next', 'pinia']
-      }
     }
   },
 

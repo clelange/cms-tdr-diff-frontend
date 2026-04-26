@@ -23,7 +23,5 @@ const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const { backendVersion } = storeToRefs(mainStore)
 
-onMounted(() => {
-  mainStore.getBackendVersion()
-})
+await mainStore.getBackendVersion()
 </script>

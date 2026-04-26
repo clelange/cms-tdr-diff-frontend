@@ -12,7 +12,7 @@
       <p>
         Select two commits (rows), then hit the submit button to trigger the PDF diff
         job. You can find the status of your jobs on the
-        <nuxt-link to="/statusboard">Status Board</nuxt-link>
+        <NuxtLink to="/statusboard">Status Board</NuxtLink>
         page.
       </p>
     </section>
@@ -79,36 +79,38 @@
           style="width:90vw;"
           @click="toggleSelected"
         >
-          <template #default="{ row }">
-            <o-table-column
-              field="short_id"
-              label="ID"
-              width="40"
-              sortable
-            >
-              {{ row.short_id }}
-            </o-table-column>
-            <o-table-column field="CADI" label="CADI tag" width="120" centered sortable>
-              {{ row.CADI ? '&#10004;' : '' }}
-            </o-table-column>
-            <o-table-column field="title" label="Commit title" sortable>
-              {{ row.title }}
-            </o-table-column>
-            <o-table-column
-              field="created_at"
-              label="Commit date"
-              centered
-              sortable
-            >
-              {{ format(new Date(row.created_at), 'dd/MM/yyyy') }}
-            </o-table-column>
-            <o-table-column field="author_name" label="Author name">
-              {{ row.author_name }}
-            </o-table-column>
-            <o-table-column field="author_email" label="Author email">
-              {{ row.author_email }}
-            </o-table-column>
-          </template>
+          <o-table-column
+            field="short_id"
+            label="ID"
+            width="40"
+            sortable
+            v-slot="props"
+          >
+            {{ props?.row?.short_id || '' }}
+          </o-table-column>
+          <o-table-column field="CADI" label="CADI tag" width="120" centered sortable v-slot="props">
+            {{ props?.row?.CADI ? '&#10004;' : '' }}
+          </o-table-column>
+          <o-table-column field="title" label="Commit title" sortable v-slot="props">
+            {{ props?.row?.title || '' }}
+          </o-table-column>
+          <o-table-column
+            field="created_at"
+            label="Commit date"
+            centered
+            sortable
+            v-slot="props"
+          >
+            <template v-if="props?.row?.created_at">
+              {{ format(new Date(props.row.created_at), 'dd/MM/yyyy') }}
+            </template>
+          </o-table-column>
+          <o-table-column field="author_name" label="Author name" v-slot="props">
+            {{ props?.row?.author_name || '' }}
+          </o-table-column>
+          <o-table-column field="author_email" label="Author email" v-slot="props">
+            {{ props?.row?.author_email || '' }}
+          </o-table-column>
           <template #empty>
             <section class="section">
               <div class="content has-text-grey has-text-centered">
