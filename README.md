@@ -1,31 +1,54 @@
-# tdr-diff-client
+# CMS TDR Diff Frontend
 
-> CMS paper and notes diff
+Nuxt/Vue frontend for browsing CMS papers and notes, selecting two commits, and
+triggering an OpenShift-hosted diff job through the backend API.
 
-## Build Setup
+## Local Development
 
-``` bash
-# install dependencies
-$ npm run install
-
-# serve with hot reload at localhost:3000
-$ npm run dev
-
-# build for production and launch server
-$ npm run build
-$ npm run start
-
-# generate static project
-$ npm run generate
+```sh
+npm ci
+npm run dev
 ```
 
-For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+Useful checks:
 
-## Further Setup
-
-```shell
-npm install @nuxtjs/proxy
-npm install eslint
-# npm install @nuxtjs/style-resources
-npm install --save-dev node-sass sass-loader
+```sh
+npm run typecheck
+npm run build
 ```
+
+## Runtime Configuration
+
+The Nuxt server proxies browser requests from `/api/*` to the backend. Define
+these values through OpenShift ConfigMaps/Secrets or local environment variables:
+
+| Variable | Source | Purpose |
+| --- | --- | --- |
+| `BACKEND_URL` / `NUXT_BACKEND_URL` | ConfigMap | Internal backend URL, for example `http://tdr-diff-backend-go:8000`. |
+| `API_TOKEN` / `NUXT_API_TOKEN` | Secret | Shared token accepted by the backend API middleware. |
+| `BUILD_HASH` / `NUXT_PUBLIC_BUILD_HASH` | ConfigMap | Displayed build/version identifier. |
+
+In OpenShift, `API_TOKEN` must live in `cms-tdr-diff-api-secret`, not in the
+frontend ConfigMap.
+
+## Deployment
+
+GitLab CI builds the frontend image and imports it into the OpenShift
+`tdr-diff-client` ImageStream. The dev deploy branch is
+`feature/vue3-openshift-jobs`.
+
+The deployment manifests and production migration checklist live in:
+
+```text
+cms-tdr-diff/cms-tdr-diff-deployment
+```
+
+Required CI variable:
+
+| Variable | Scope | Purpose |
+| --- | --- | --- |
+| `OPENSHIFT_DEV_TOKEN` | GitLab group, hidden/masked | OpenShift service account token for dev deploys. |
+
+Production should use a separate protected variable, `OPENSHIFT_PROD_TOKEN`,
+and deploy only from protected branches or tags.
+
