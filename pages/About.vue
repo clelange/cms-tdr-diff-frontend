@@ -4,41 +4,48 @@
       <div class="hero-body">
         <h1 class="title">Using this website</h1>
         <p>
-          This website uses the GitLab API at CERN to query existing documents
-          (papers, reports, and notes) as well as their commit history.
+          This website uses the CERN GitLab API to list CMS papers and notes,
+          their recent commit history, and their CADI build tags.
         </p>
 
         <p>
           Start by choosing one of the available categories from the top left
-          menu, then pick the document of your interest. You can filter the
-          table entries by typing a part of the document name, e.g.
+          menu, then pick the document of interest. You can filter the table
+          entries by typing a part of the document name, e.g.
           <b>18-002</b> will show B2G-18-002, BPH-18-002, etc. if
           available in the chosen category.
         </p>
         <p>
-          By clicking on the document name, you will see a page that displays
-          all commits including their corresponding tags. Select two commits,
-          and hit submit. This will trigger a job on the CERN OpenShift platform to generate the
-          documents for the two chosen commits as well as the difference between
-          them. Creating the three PDF files usually takes a few minutes. You
-          can follow the progress on the
-          <NuxtLink to="/dashboard">Dashboard</NuxtLink> linked from the
-          top right of the page. Once the job has completed, a link will appear
-          on the <NuxtLink to="/dashboard">Dashboard</NuxtLink>
-          that will allow you to download a zip file of the PDF files.
+          Clicking a document opens its commit table. Select two commits and
+          submit them to create a diff job. The job runs directly on the CERN
+          OpenShift platform and builds the PDFs for both selected commits, the
+          PDF diff, a build log, and a small metadata summary.
         </p>
         <p>
-          Please mind that parsing LateX programmatically is difficult and building
-          a diff is not always possible. In particular, if the TeX files produce
-          errors for one or both of the two chosen commits, the diff will most
-          likely not work either.
+          After submission you are sent to the
+          <NuxtLink to="/dashboard">Dashboard</NuxtLink>, where your jobs,
+          artifacts, and logs are shown. If the same project and commit pair was
+          already built successfully and the files are still retained, the
+          existing result is reused instead of starting duplicate work.
+        </p>
+        <p>
+          Generated artifacts are kept for about ten days. LaTeX diffs are not
+          always possible: if the selected commits do not compile cleanly, or if
+          latexdiff creates invalid TeX, the job may fail even though the
+          application and deployment are working correctly.
         </p>
       </div>
     </section>
     <section class="hero">
       <div class="hero-body">
         <h1 class="title">About this project</h1>
-        <p>This project has been developed by Clemens Lange.</p>
+        <p>
+          CMS TDR Diff is developed by Clemens Lange and maintained in the CERN
+          GitLab group
+          <a href="https://gitlab.cern.ch/cms-tdr-diff">cms-tdr-diff</a>.
+          The current service consists of a Nuxt/Vue frontend, a Go backend,
+          and a GitLab-built diff-runner container executed as OpenShift Jobs.
+        </p>
         <p>
           Please let me know what you think about it: Drop me an email, or if
           you really like it,

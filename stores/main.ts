@@ -9,11 +9,17 @@ interface CurrentUser {
   preferred_username?: string
 }
 
+interface BackendVersion {
+  Version?: string
+  BuildTime?: string
+  SnapshotTag?: string
+}
+
 export const useMainStore = defineStore('main', {
   state: () => ({
     tdrTypes: [] as string[],
     apiStatus: null as 'good' | 'bad' | null,
-    backendVersion: 'undefined' as string,
+    backendVersion: null as BackendVersion | null,
     currentUser: null as CurrentUser | null
   }),
 
@@ -43,11 +49,10 @@ export const useMainStore = defineStore('main', {
 
     async getBackendVersion() {
       try {
-        const response = await $fetch('/api/version') as { SnapshotTag: string }
-        this.backendVersion = response.SnapshotTag
+        this.backendVersion = await $fetch('/api/version') as BackendVersion
       } catch (err) {
         console.error(err)
-        this.backendVersion = 'undefined'
+        this.backendVersion = null
       }
     },
 
