@@ -15,7 +15,7 @@ typecheck:
   stage: validate
   image: node:24-alpine
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_COMMIT_BRANCH'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     - npm ci
@@ -27,7 +27,7 @@ build_image:
     name: gitlab-registry.cern.ch/ci-tools/docker-image-builder
     entrypoint: [""]
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_COMMIT_BRANCH'
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - |
