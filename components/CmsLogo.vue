@@ -1,5 +1,6 @@
 <template>
   <svg
+    id="svg2"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:cc="http://creativecommons.org/ns#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -9,12 +10,11 @@
     height="320"
     width="auto"
     xml:space="preserve"
-    id="svg2"
     version="1.1"
   >
     <defs id="defs6" />
-    <g transform="matrix(1.3333333,0,0,-1.3333333,0,524.74667)" id="g10">
-      <g transform="scale(0.1)" id="g12">
+    <g id="g10" transform="matrix(1.3333333,0,0,-1.3333333,0,524.74667)">
+      <g id="g12" transform="scale(0.1)">
         <path
           id="path14"
           class="outside"

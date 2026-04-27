@@ -14,10 +14,10 @@
         :aria-expanded="isMenuOpen"
         @click="isMenuOpen = !isMenuOpen"
       >
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
+        <span aria-hidden="true"/>
+        <span aria-hidden="true"/>
+        <span aria-hidden="true"/>
+        <span aria-hidden="true"/>
       </button>
     </div>
 

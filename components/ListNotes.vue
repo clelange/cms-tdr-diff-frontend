@@ -1,6 +1,6 @@
 <template>
   <div>
-    <o-loading :active="isLoading" :full-page="false" :can-cancel="false"></o-loading>
+    <o-loading :active="isLoading" :full-page="false" :can-cancel="false"/>
     <section class="section">
       <h1 class="title is-3">{{ categoryName }}</h1>
       <p>You can filter by CADI ID/name using the search box below.</p>
@@ -9,7 +9,7 @@
     <nav class="panel">
       <div class="panel-block">
         <o-field label="Filter by name" label-position="on-border" grouped>
-          <o-input v-model="searchQueryInput" type="text" icon="magnify" placeholder="search"></o-input>
+          <o-input v-model="searchQueryInput" type="text" icon="magnify" placeholder="search"/>
           <p class="control">
             <button
               class="button is-primary"
@@ -47,13 +47,13 @@
             :default-sort="['last_activity_at', 'desc']"
             sort-icon="chevron-up"
           >
-            <o-table-column field="id" label="ID" width="40" sortable numeric v-slot="props">
+            <o-table-column v-slot="props" field="id" label="ID" width="40" sortable numeric>
               {{ props?.row?.id || '' }}
             </o-table-column>
-            <o-table-column field="name" label="Name" sortable v-slot="props">
+            <o-table-column v-slot="props" field="name" label="Name" sortable>
               <NuxtLink v-if="props?.row?.name" :to="`/${categoryName}/${props.row.name}`">{{ props.row.name }}</NuxtLink>
             </o-table-column>
-            <o-table-column field="last_activity_at" label="Last activity" centered sortable v-slot="props">
+            <o-table-column v-slot="props" field="last_activity_at" label="Last activity" centered sortable>
               <span
                 v-if="props?.row?.last_activity_at"
                 :class="[
@@ -65,10 +65,10 @@
                 {{ formatDistanceToNow(new Date(props.row.last_activity_at)) }} ago
               </span>
             </o-table-column>
-            <o-table-column field="description" label="Description" v-slot="props">
+            <o-table-column v-slot="props" field="description" label="Description">
               <LatexText :text="props?.row?.description || ''" />
             </o-table-column>
-            <o-table-column field="web_url" label="GitLab repository" v-slot="props">
+            <o-table-column v-slot="props" field="web_url" label="GitLab repository">
               <a v-if="props?.row?.web_url" :href="props.row.web_url">{{ props.row.web_url }}</a>
             </o-table-column>
           </o-table>
@@ -110,7 +110,7 @@ const filtered = computed(() => {
   }
   const nameRe = new RegExp(query, 'i')
 
-  return myProjects.value.filter(project => 
+  return myProjects.value.filter(project =>
     project.name.match(nameRe)
   )
 })

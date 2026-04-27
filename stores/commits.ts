@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-interface Commit {
+export interface Commit {
   id: string
   short_id: string
   created_at: string
@@ -10,7 +10,7 @@ interface Commit {
   tag?: string
 }
 
-interface ProjectInfo {
+export interface ProjectInfo {
   name: string
   description: string
   web_url: string

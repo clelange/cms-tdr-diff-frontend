@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 
-interface JobArtifact {
+export interface JobArtifact {
   filename: string
   url: string
   size?: number
   type?: string
 }
 
-interface JobStatus {
+export interface JobStatus {
   id: string
   job_name: string
   project: string

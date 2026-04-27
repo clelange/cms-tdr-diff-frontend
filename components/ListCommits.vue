@@ -1,11 +1,11 @@
 <template>
   <div>
-    <o-loading :active="isLoading" :full-page="false" :can-cancel="false"></o-loading>
+    <o-loading :active="isLoading" :full-page="false" :can-cancel="false"/>
     <section class="section">
       <h1 class="title is-3">{{ categoryName }} / {{ projectInfo?.name }}</h1>
       <h2 class="subtitle is-6">
         description: <LatexText :text="projectInfo?.description || ''" />
-        <br />
+        <br >
         repository:
         <a :href="projectInfo?.web_url">{{ projectInfo?.web_url }}</a>
       </h2>
@@ -31,19 +31,19 @@
     <div class="notification commit-selection">
       <o-button
         v-for="(item, index) in checkedRows"
-        v-on:click="removeElement(index)"
         :key="index"
         variant="info"
         icon-right="delete"
+        @click="removeElement(index)"
       >
         {{ item.short_id }}
       </o-button>
       <o-button
         variant="primary"
         size="large"
-        :disabled="checkedRows.length != 2 || isSubmitted == true"
+        :disabled="checkedRows.length !== 2 || isSubmitted"
         :loading="isSubmitted"
-        @click="submitJob()"
+        @click="submitJob"
       >
         {{ isSubmitted ? 'Creating diff job...' : 'Submit' }}
       </o-button>
@@ -53,10 +53,10 @@
         <o-field grouped group-multiline>
           <button
             class="button field is-danger"
-            @click="checkedRows = []"
             :disabled="!checkedRows.length"
+            @click="checkedRows = []"
           >
-            <o-icon icon="close"></o-icon>
+            <o-icon icon="close"/>
             <span>Clear selected</span>
           </button>
           <o-select v-model="perPage" :disabled="!isPaginated">
@@ -67,14 +67,13 @@
           <div class="control is-flex">
             <o-switch v-model="isPaginated">Paginated</o-switch>
           </div>
-          <div class="control is-flex"></div>
+          <div class="control is-flex"/>
           <div class="control is-flex">
             <o-switch v-model="onlyCADI">Show only CADI versions</o-switch>
           </div>
-          <div class="control is-flex"></div>
+          <div class="control is-flex"/>
         </o-field>
         <o-table
-          ref="commitsTable"
           :data="filtered"
           :paginated="isPaginated"
           :per-page="perPage"
@@ -92,42 +91,42 @@
           @click="toggleSelected"
         >
           <o-table-column
+            v-slot="props"
             field="short_id"
             label="ID"
             width="40"
             sortable
-            v-slot="props"
           >
             {{ props?.row?.short_id || '' }}
           </o-table-column>
-          <o-table-column field="CADI" label="CADI tag" width="120" centered sortable v-slot="props">
+          <o-table-column v-slot="props" field="CADI" label="CADI tag" width="120" centered sortable>
             {{ props?.row?.CADI ? '&#10004;' : '' }}
           </o-table-column>
-          <o-table-column field="title" label="Commit title" sortable v-slot="props">
+          <o-table-column v-slot="props" field="title" label="Commit title" sortable>
             <LatexText :text="props?.row?.title || ''" />
           </o-table-column>
           <o-table-column
+            v-slot="props"
             field="created_at"
             label="Commit date"
             centered
             sortable
-            v-slot="props"
           >
             <template v-if="props?.row?.created_at">
               {{ format(new Date(props.row.created_at), 'dd/MM/yyyy') }}
             </template>
           </o-table-column>
-          <o-table-column field="author_name" label="Author name" v-slot="props">
+          <o-table-column v-slot="props" field="author_name" label="Author name">
             {{ props?.row?.author_name || '' }}
           </o-table-column>
-          <o-table-column field="author_email" label="Author email" v-slot="props">
+          <o-table-column v-slot="props" field="author_email" label="Author email">
             {{ props?.row?.author_email || '' }}
           </o-table-column>
           <template #empty>
             <section class="section">
               <div class="content has-text-grey has-text-centered">
                 <p>
-                  <o-icon icon="emoticon-sad" size="large"></o-icon>
+                  <o-icon icon="emoticon-sad" size="large"/>
                 </p>
                 <p>No commits found in the last 90 days.</p>
               </div>
@@ -141,48 +140,46 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useMainStore } from '~/stores/main'
 import { useCommitsStore } from '~/stores/commits'
 import { useJobsStore } from '~/stores/jobs'
+import type { Commit } from '~/stores/commits'
 import { format } from 'date-fns'
+
+type CommitRow = Commit & {
+  CADI: boolean
+}
 
 const route = useRoute()
 const router = useRouter()
-const mainStore = useMainStore()
 const commitsStore = useCommitsStore()
 const jobsStore = useJobsStore()
 
 const { projectInfo } = storeToRefs(commitsStore)
 
-const isLoading = ref(!mainStore.apiStatus)
-const categoryName = ref((route.params.slug as string[])[0])
-const searchQuery = ref('')
+const isLoading = computed(() => !projectInfo.value && !commitsStore.commitList.length)
+const categoryName = computed(() => {
+  const slug = route.params.slug
+  const segments = Array.isArray(slug) ? slug : [slug]
+  return String(segments[0] || '')
+})
 const perPage = ref(10)
 const isPaginated = ref(true)
 const onlyCADI = ref(false)
-const checkedRows = ref<any[]>([])
+const checkedRows = ref<CommitRow[]>([])
 const isSubmitted = ref(false)
-const commitList = ref<any[]>([])
-const currentJob = ref<string | null>(null)
 const submitError = ref('')
 
-const filtered = computed(() => {
-  if (!onlyCADI.value) {
-    return commitList.value
-  } else {
-    return commitList.value.filter(commit => commit.CADI)
-  }
+const commitList = computed<CommitRow[]>(() => {
+  return commitsStore.commitList.map(commit => ({
+    ...commit,
+    CADI: commit.tag?.startsWith('CADI-BuildTag_') || false
+  }))
 })
 
-onMounted(() => {
-  commitList.value = commitsStore.commitList
-  for (const commit of commitList.value) {
-    if (commit.tag?.startsWith('CADI-BuildTag_')) {
-      commit.CADI = true
-    } else {
-      commit.CADI = false
-    }
-  }
+const filtered = computed(() => {
+  if (!onlyCADI.value) return commitList.value
+
+  return commitList.value.filter(commit => commit.CADI)
 })
 
 const removeElement = (index: number) => {
@@ -190,9 +187,9 @@ const removeElement = (index: number) => {
   isSubmitted.value = false
 }
 
-const toggleSelected = (row: any) => {
-  const index = checkedRows.value.findIndex(p => p.short_id == row.short_id)
-  
+const toggleSelected = (row: CommitRow) => {
+  const index = checkedRows.value.findIndex(commit => commit.short_id === row.short_id)
+
   if (index >= 0) {
     checkedRows.value.splice(index, 1)
   } else {
@@ -201,34 +198,27 @@ const toggleSelected = (row: any) => {
   isSubmitted.value = false
 }
 
-const compare = (a: any, b: any) => {
-  const timeA = new Date(a.created_at)
-  const timeB = new Date(b.created_at)
-  if (timeA < timeB) {
-    return 1
-  }
-  return -1
-}
+const compareByNewestFirst = (a: CommitRow, b: CommitRow) =>
+  new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
 
 const submitJob = async () => {
   isSubmitted.value = true
   submitError.value = ''
-  
-  const sorted = [...checkedRows.value].sort(compare)
+
+  const sorted = [...checkedRows.value].sort(compareByNewestFirst)
   const postDict = {
     sha1: sorted[0].id,
     sha2: sorted[1].id,
     group: categoryName.value,
-    project: commitsStore.projectInfo?.name
+    project: projectInfo.value?.name
   }
 
   try {
-    const response = await $fetch('/api/trigger', {
+    const response = await $fetch<{ job_id: string; reused?: boolean }>('/api/trigger', {
       method: 'POST',
       body: postDict
-    }) as { job_id: string, reused?: boolean }
-    
-    currentJob.value = response.job_id
+    })
+
     await jobsStore.load(response.job_id).catch(() => undefined)
     await router.push({
       path: '/dashboard',

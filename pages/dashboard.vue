@@ -21,6 +21,7 @@
       <section class="section dashboard-section">
         <div class="dashboard-table-wrap">
           <o-table
+            v-model:detailed-rows="detailedRows"
             :data="filtered"
             :loading="!loaded"
             :hoverable="true"
@@ -31,7 +32,6 @@
             detailed
             row-key="jobId"
             :show-detail-icon="false"
-            v-model:detailed-rows="detailedRows"
             sort-icon="chevron-up"
             default-sort-direction="asc"
             :default-sort="['created_at_raw', 'desc']"
@@ -40,50 +40,50 @@
             class="status-table"
           >
             <o-table-column
+              v-slot="props"
               field="jobId"
               label="Job ID"
               width="120"
               sortable
-              v-slot="props"
             >
               <span :id="`job-${props?.row?.jobId || ''}`" class="job-id">
                 {{ props?.row?.jobId || '' }}
               </span>
             </o-table-column>
-            <o-table-column field="project" label="Project" width="120" sortable v-slot="props">
+            <o-table-column v-slot="props" field="project" label="Project" width="120" sortable>
               <template v-if="props?.row">
                 {{ props.row.group }} / {{ props.row.project }}
               </template>
             </o-table-column>
-            <o-table-column field="status" label="Status" width="40" sortable v-slot="props">
+            <o-table-column v-slot="props" field="status" label="Status" width="40" sortable>
               <span v-if="props?.row" :class="props.row.status_style">{{ props.row.status }}</span>
             </o-table-column>
             <o-table-column
+              v-slot="props"
               field="created_at"
               label="Created"
               width="200"
               centered
               sortable
-              v-slot="props"
             >
               <template v-if="props?.row">
                 {{ props.row.created_at }} ago
               </template>
             </o-table-column>
-            <o-table-column field="duration" label="Duration" width="150" centered v-slot="props">
+            <o-table-column v-slot="props" field="duration" label="Duration" width="150" centered>
               {{ props?.row?.duration || '' }}
             </o-table-column>
             <o-table-column
+              v-slot="props"
               field="expires_at"
               label="Expires"
               width="150"
               centered
               sortable
-              v-slot="props"
             >
               {{ props?.row?.expires_at || '' }}
             </o-table-column>
-            <o-table-column field="artifact" label="Diff output" v-slot="props">
+            <o-table-column v-slot="props" field="artifact" label="Diff output">
               <div v-if="props?.row?.artifacts?.length" class="artifact-links">
                 <a
                   v-for="artifact in props.row.artifacts"
@@ -96,7 +96,7 @@
               </div>
               <span v-else>{{ props?.row?.artifacts_text || '' }}</span>
             </o-table-column>
-            <o-table-column field="logs" label="Logs" width="100" centered v-slot="props">
+            <o-table-column v-slot="props" field="logs" label="Logs" width="100" centered>
               <template v-if="props?.row">
                 <button
                   class="button is-small"
@@ -147,7 +147,7 @@
               <section class="section">
                 <div class="content has-text-grey has-text-centered">
                   <p>
-                    <o-icon icon="emoticon-sad" size="large"></o-icon>
+                    <o-icon icon="emoticon-sad" size="large"/>
                   </p>
                   <p>No jobs found.</p>
                 </div>
@@ -164,8 +164,33 @@
 import { storeToRefs } from 'pinia'
 import { useJobsStore } from '~/stores/jobs'
 import { useMainStore } from '~/stores/main'
+import type { JobArtifact, JobStatus } from '~/stores/jobs'
 import { formatDistanceToNow, differenceInSeconds } from 'date-fns'
 import { useIntervalFn } from '@vueuse/core'
+
+interface DashboardArtifact {
+  href: string
+  label: string
+}
+
+interface DashboardRow {
+  jobId: string
+  project: string
+  group: string
+  sha1?: string
+  sha2?: string
+  sha1_short: string
+  sha2_short: string
+  status: string
+  status_style: string
+  duration: string
+  failure_message: string
+  created_at_raw: string
+  created_at: string
+  expires_at: string
+  artifacts: DashboardArtifact[]
+  artifacts_text: string
+}
 
 const jobsStore = useJobsStore()
 const mainStore = useMainStore()
@@ -178,7 +203,7 @@ const { currentUserLabel } = storeToRefs(mainStore)
 const loaded = computed(() => jobsStore.status)
 const loadingLogs = ref<Record<string, boolean>>({})
 const logErrors = ref<Record<string, string>>({})
-const detailedRows = ref<any[]>([])
+const detailedRows = ref<DashboardRow[]>([])
 const noticeDismissed = ref(false)
 const requestedJobOpened = ref(false)
 
@@ -197,83 +222,21 @@ const dashboardNotice = computed(() => {
   }
 })
 
-const filtered = computed(() => {
-  const massagedJobs: any[] = []
-  
-  for (const currentJob of jobs.value) {
-    const jobDict: any = {}
-    jobDict.jobId = currentJob.id
-    jobDict.project = currentJob.project
-    jobDict.group = currentJob.group
-    jobDict.sha1 = currentJob.sha1
-    jobDict.sha2 = currentJob.sha2
-    jobDict.sha1_short = shortSha(currentJob.sha1)
-    jobDict.sha2_short = shortSha(currentJob.sha2)
-    jobDict.status = currentJob.status
-    jobDict.failure_message = currentJob.failure_message || currentJob.failure_reason || ''
-    jobDict.created_at_raw = currentJob.created_at
-    
-    switch (jobDict.status) {
-      case 'pending':
-        jobDict.status_style = 'tag is-warning'
-        jobDict.duration = '-'
-        break
-      case 'running':
-        jobDict.status_style = 'tag is-warning'
-        jobDict.duration = Number(currentJob.duration) + ' s'
-        break
-      case 'success':
-        jobDict.status_style = 'tag is-success'
-        jobDict.duration = Number(currentJob.duration) + ' s'
-        break
-      default:
-        jobDict.status_style = 'tag is-danger'
-        jobDict.duration = Number(currentJob.duration) + ' s'
-    }
-
-    if (jobDict.duration === undefined) {
-      jobDict.duration = '-'
-    }
-
-    if (differenceInSeconds(new Date(), new Date(currentJob.expires_at)) > 0) {
-      jobDict.expires_at = 'expired'
-    } else {
-      jobDict.expires_at = 'in ' + formatDistanceToNow(new Date(currentJob.expires_at))
-    }
-
-    if (currentJob.artifacts?.length) {
-      jobDict.artifacts = currentJob.artifacts.map((artifact) => ({
-        href: '/api' + artifact.url,
-        label: artifact.filename === 'output.zip'
-          ? 'output.zip'
-          : `${artifact.filename}${artifact.size ? ` (${formatBytes(artifact.size)})` : ''}`
-      }))
-    } else {
-      jobDict.artifacts = []
-      jobDict.artifacts_text = jobDict.status === 'success' ? 'not available' : ''
-    }
-    
-    jobDict.created_at = formatDistanceToNow(
-      new Date(currentJob.created_at)
-    )
-    massagedJobs.push(jobDict)
-  }
-  
-  return massagedJobs
-})
+const filtered = computed<DashboardRow[]>(() => jobs.value.map(toDashboardRow))
 
 const updatePipelines = async () => {
   await jobsStore.update()
 }
 
-const isDetailed = (row: any) => detailedRows.value.some((detailsRow) => detailsRow.jobId === row.jobId)
+const isDetailed = (row: DashboardRow) =>
+  detailedRows.value.some(detailsRow => detailsRow.jobId === row.jobId)
 
-const setDetailed = (row: any, open: boolean) => {
-  const existing = detailedRows.value.filter((detailsRow) => detailsRow.jobId !== row.jobId)
+const setDetailed = (row: DashboardRow, open: boolean) => {
+  const existing = detailedRows.value.filter(detailsRow => detailsRow.jobId !== row.jobId)
   detailedRows.value = open ? [...existing, row] : existing
 }
 
-const toggleLogs = async (row: any) => {
+const toggleLogs = async (row: DashboardRow) => {
   const opening = !isDetailed(row)
   setDetailed(row, opening)
   if (!opening || logs.value[row.jobId]) return
@@ -282,8 +245,8 @@ const toggleLogs = async (row: any) => {
   logErrors.value[row.jobId] = ''
   try {
     await jobsStore.loadLogs(row.jobId)
-  } catch (error: any) {
-    logErrors.value[row.jobId] = error?.data?.error?.message || 'Could not load logs.'
+  } catch (error: unknown) {
+    logErrors.value[row.jobId] = getFetchErrorMessage(error) || 'Could not load logs.'
   } finally {
     loadingLogs.value[row.jobId] = false
   }
@@ -319,12 +282,76 @@ const normalizeRoute = async () => {
 
 const shortSha = (sha?: string) => sha ? sha.slice(0, 8) : '-'
 
+const toDashboardRow = (job: JobStatus): DashboardRow => {
+  const { status_style, duration } = getStatusDisplay(job)
+  const artifacts = formatArtifacts(job.artifacts || [])
+
+  return {
+    jobId: job.id,
+    project: job.project,
+    group: job.group,
+    sha1: job.sha1,
+    sha2: job.sha2,
+    sha1_short: shortSha(job.sha1),
+    sha2_short: shortSha(job.sha2),
+    status: job.status,
+    status_style,
+    duration,
+    failure_message: job.failure_message || job.failure_reason || '',
+    created_at_raw: job.created_at,
+    created_at: formatDistanceToNow(new Date(job.created_at)),
+    expires_at: formatExpiresAt(job.expires_at),
+    artifacts,
+    artifacts_text: artifacts.length ? '' : job.status === 'success' ? 'not available' : ''
+  }
+}
+
+const getStatusDisplay = (job: JobStatus) => {
+  switch (job.status) {
+    case 'pending':
+      return { status_style: 'tag is-warning', duration: '-' }
+    case 'running':
+      return { status_style: 'tag is-warning', duration: formatDuration(job.duration) }
+    case 'success':
+      return { status_style: 'tag is-success', duration: formatDuration(job.duration) }
+    default:
+      return { status_style: 'tag is-danger', duration: formatDuration(job.duration) }
+  }
+}
+
+const formatDuration = (duration?: number) => {
+  if (!Number.isFinite(duration)) return '-'
+
+  return `${Number(duration)} s`
+}
+
+const formatExpiresAt = (expiresAt: string) => {
+  if (differenceInSeconds(new Date(), new Date(expiresAt)) > 0) return 'expired'
+
+  return `in ${formatDistanceToNow(new Date(expiresAt))}`
+}
+
+const formatArtifacts = (artifacts: JobArtifact[]): DashboardArtifact[] =>
+  artifacts.map(artifact => ({
+    href: `/api${artifact.url}`,
+    label: artifact.filename === 'output.zip'
+      ? 'output.zip'
+      : `${artifact.filename}${artifact.size ? ` (${formatBytes(artifact.size)})` : ''}`
+  }))
+
 const formatBytes = (bytes: number) => {
   if (!bytes) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB']
   const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
   const value = bytes / Math.pow(1024, exponent)
   return `${value.toFixed(value >= 10 || exponent === 0 ? 0 : 1)} ${units[exponent]}`
+}
+
+const getFetchErrorMessage = (error: unknown) => {
+  if (!error || typeof error !== 'object' || !('data' in error)) return ''
+
+  const data = (error as { data?: { error?: { message?: unknown } } }).data
+  return typeof data?.error?.message === 'string' ? data.error.message : ''
 }
 
 onMounted(async () => {

@@ -8,8 +8,8 @@ Use this prompt to continue the Vue 2 to Vue 3 migration if work is interrupted.
 
 You are helping migrate a Vue 2 / Nuxt 2 frontend application to Vue 3 / Nuxt 3.
 
-**Project Location:** `/home/clange/cms-tdr-diff-dev/cms-tdr-diff-frontend`  
-**Git Branch:** `feature/vue3-migration`  
+**Project Location:** `/home/clange/cms-tdr-diff-dev/cms-tdr-diff-frontend`
+**Git Branch:** `feature/vue3-migration`
 **Plan Document:** `plan.md` in the project root
 
 ## Current State

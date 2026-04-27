@@ -1,5 +1,5 @@
 <template>
-  <span class="latex-text" v-html="renderedHtml"></span>
+  <span class="latex-text" v-html="renderedHtml"/>
 </template>
 
 <script setup lang="ts">

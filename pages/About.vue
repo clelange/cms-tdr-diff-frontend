@@ -50,7 +50,7 @@
           Please let me know what you think about it: Drop me an email, or if
           you really like it,
           <a href="https://www.buymeacoffee.com/clange">buy me a tea</a>!
-          <br />
+          <br >
           <a
             class="bmc-button"
             target="_blank"
@@ -59,7 +59,7 @@
             <img
               src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
               alt="Buy me a tea"
-            /><span style="margin-left:15px;font-size:28px !important;"
+            ><span style="margin-left:15px;font-size:28px !important;"
               >Buy me a tea</span
           ></a>
         </p>

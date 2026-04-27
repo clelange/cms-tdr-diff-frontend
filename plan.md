@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-**Application:** CMS TDR Diff Frontend  
-**Current Stack:** Nuxt 2.15.8 (Vue 2), Buefy, Vuex, Node 13  
-**Target Stack:** Nuxt 3.x (Vue 3), Oruga UI, Pinia, Node 20 LTS  
+**Application:** CMS TDR Diff Frontend
+**Current Stack:** Nuxt 2.15.8 (Vue 2), Buefy, Vuex, Node 13
+**Target Stack:** Nuxt 3.x (Vue 3), Oruga UI, Pinia, Node 20 LTS
 **Migration Strategy:** Incremental migration with Docker-based development and testing
 
 ---
