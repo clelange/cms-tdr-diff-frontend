@@ -4,7 +4,7 @@ export default defineNuxtConfig({
 
   modules: ['@pinia/nuxt'],
 
-  css: ['@oruga-ui/theme-bulma/style.css'],
+  css: ['@oruga-ui/theme-bulma/style.css', 'katex/dist/katex.min.css'],
 
   runtimeConfig: {
     backendUrl: process.env.BACKEND_URL || 'http://localhost:8000',

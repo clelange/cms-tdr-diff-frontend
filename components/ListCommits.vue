@@ -4,7 +4,7 @@
     <section class="section">
       <h1 class="title is-3">{{ categoryName }} / {{ projectInfo?.name }}</h1>
       <h2 class="subtitle is-6">
-        description: {{ projectInfo?.description }}
+        description: <LatexText :text="projectInfo?.description || ''" />
         <br />
         repository:
         <a :href="projectInfo?.web_url">{{ projectInfo?.web_url }}</a>
@@ -92,7 +92,7 @@
             {{ props?.row?.CADI ? '&#10004;' : '' }}
           </o-table-column>
           <o-table-column field="title" label="Commit title" sortable v-slot="props">
-            {{ props?.row?.title || '' }}
+            <LatexText :text="props?.row?.title || ''" />
           </o-table-column>
           <o-table-column
             field="created_at"

@@ -66,7 +66,7 @@
               </span>
             </o-table-column>
             <o-table-column field="description" label="Description" v-slot="props">
-              {{ props?.row?.description || '' }}
+              <LatexText :text="props?.row?.description || ''" />
             </o-table-column>
             <o-table-column field="web_url" label="GitLab repository" v-slot="props">
               <a v-if="props?.row?.web_url" :href="props.row.web_url">{{ props.row.web_url }}</a>
