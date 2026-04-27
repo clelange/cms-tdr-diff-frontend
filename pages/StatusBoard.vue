@@ -16,7 +16,7 @@
             :default-sort="['created_at_raw', 'desc']"
             :header-checkable="false"
             checkbox-position="left"
-            style="width:90vw;"
+            class="status-table"
           >
             <o-table-column
               field="jobId"
@@ -159,3 +159,15 @@ onMounted(async () => {
 
 useIntervalFn(updatePipelines, 15000)
 </script>
+
+<style scoped>
+.status-table {
+  width: 90vw;
+}
+
+@media (max-width: 768px) {
+  .status-table {
+    width: 100%;
+  }
+}
+</style>

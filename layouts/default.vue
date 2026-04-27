@@ -22,6 +22,11 @@ import PageFooter from '~/components/Footer.vue'
 
 .app-main {
   flex: 1 0 auto;
+  min-width: 0;
+}
+
+.app-main a {
+  overflow-wrap: anywhere;
 }
 
 .button--green {

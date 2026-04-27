@@ -76,7 +76,7 @@
           checkable
           :header-checkable="false"
           checkbox-position="left"
-          style="width:90vw;"
+          class="commit-table"
           @click="toggleSelected"
         >
           <o-table-column
@@ -221,4 +221,26 @@ const submitJob = async () => {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.commit-table {
+  width: 90vw;
+}
+
+@media (max-width: 768px) {
+  .notification {
+    border-radius: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  :deep(.field.is-grouped) {
+    flex-wrap: wrap;
+  }
+
+  .commit-table {
+    width: 100%;
+  }
+}
+</style>
