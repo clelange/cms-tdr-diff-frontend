@@ -74,6 +74,10 @@ const reloadPage = () => {
 
 await mainStore.loadTdr()
 await mainStore.getCurrentUser()
+
+onMounted(() => {
+  mainStore.getCurrentUser()
+})
 </script>
 
 <style lang="scss" scoped>
