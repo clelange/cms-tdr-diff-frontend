@@ -17,7 +17,8 @@ export default defineNuxtConfig({
     backendUrl: process.env.BACKEND_URL || 'http://localhost:8000',
     apiToken: process.env.API_TOKEN || '',
     public: {
-      buildHash: process.env.BUILD_HASH || 'local'
+      buildHash: process.env.BUILD_HASH || 'local',
+      buildDate: process.env.BUILD_DATE || ''
     }
   },
 

@@ -37,6 +37,10 @@
       </div>
 
       <div class="navbar-end">
+        <span v-if="currentUserLabel" class="navbar-item user-label">
+          <o-icon icon="account" size="small" class="mr-1" />
+          {{ currentUserLabel }}
+        </span>
         <button class="navbar-item api-status" type="button" @click="reloadPage">
           <span v-if="apiStatus === 'good'" class="button has-text-success">
             API status OK
@@ -61,7 +65,7 @@ import { storeToRefs } from 'pinia'
 import { useMainStore } from '~/stores/main'
 
 const mainStore = useMainStore()
-const { apiStatus, tdrTypes } = storeToRefs(mainStore)
+const { apiStatus, tdrTypes, currentUserLabel } = storeToRefs(mainStore)
 const isMenuOpen = ref(false)
 
 const reloadPage = () => {
@@ -69,6 +73,7 @@ const reloadPage = () => {
 }
 
 await mainStore.loadTdr()
+await mainStore.getCurrentUser()
 </script>
 
 <style lang="scss" scoped>
@@ -82,5 +87,12 @@ await mainStore.loadTdr()
   background: transparent;
   border: 0;
   cursor: pointer;
+}
+
+.user-label {
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

@@ -40,6 +40,7 @@ build_image:
         --context "$CI_PROJECT_DIR" \
         --dockerfile "$CI_PROJECT_DIR/Dockerfile.prod" \
         --build-arg SNAPSHOT="$CI_COMMIT_SHORT_SHA" \
+        --build-arg BUILD_DATE="$CI_COMMIT_TIMESTAMP" \
         $DESTINATIONS
 
 deploy_dev:
@@ -53,6 +54,6 @@ deploy_dev:
     - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_DEV_TOKEN"
     - oc project "$OPENSHIFT_DEV_PROJECT"
     - oc import-image "${OPENSHIFT_DEV_IMAGESTREAM}:${IMAGE_TAG}" --from="${CI_REGISTRY_IMAGE}:${IMAGE_TAG}" --confirm --reference-policy=local
-    - oc patch configmap cms-tdr-diff-frontend-configmap --type merge -p "{\"data\":{\"BUILD_HASH\":\"${CI_COMMIT_SHORT_SHA}\"}}"
+    - oc patch configmap cms-tdr-diff-frontend-configmap --type merge -p "{\"data\":{\"BUILD_HASH\":\"${CI_COMMIT_SHORT_SHA}\",\"BUILD_DATE\":\"${CI_COMMIT_TIMESTAMP}\"}}"
     - oc rollout restart "deployment/${OPENSHIFT_DEV_DEPLOYMENT}"
     - oc rollout status "deployment/${OPENSHIFT_DEV_DEPLOYMENT}" --timeout=180s

@@ -4,6 +4,7 @@ export default defineNuxtPlugin(async () => {
     const mainStore = useMainStore()
     await Promise.all([
         mainStore.getBackendVersion(),
-        mainStore.loadTdr()
+        mainStore.loadTdr(),
+        mainStore.getCurrentUser()
     ])
 })

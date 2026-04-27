@@ -1,7 +1,9 @@
 FROM node:24-alpine
 
 ARG SNAPSHOT="local"
+ARG BUILD_DATE=""
 ENV BUILD_HASH=$SNAPSHOT
+ENV BUILD_DATE=$BUILD_DATE
 ENV BACKEND_URL=http://localhost:8000/
 WORKDIR /app
 COPY package*.json ./

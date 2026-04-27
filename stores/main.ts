@@ -1,13 +1,29 @@
 import { defineStore } from 'pinia'
 
+interface CurrentUser {
+  id: string
+  email?: string
+  username?: string
+  authenticated: boolean
+  identity_source?: string
+  preferred_username?: string
+}
+
 export const useMainStore = defineStore('main', {
   state: () => ({
     tdrTypes: [] as string[],
     apiStatus: null as 'good' | 'bad' | null,
-    backendVersion: 'undefined' as string
+    backendVersion: 'undefined' as string,
+    currentUser: null as CurrentUser | null
   }),
 
-  getters: {},
+  getters: {
+    currentUserLabel: (state) => {
+      const user = state.currentUser
+      if (!user?.authenticated) return ''
+      return user.email || user.username || user.id
+    }
+  },
 
   actions: {
     async loadTdr() {
@@ -32,6 +48,16 @@ export const useMainStore = defineStore('main', {
       } catch (err) {
         console.error(err)
         this.backendVersion = 'undefined'
+      }
+    },
+
+    async getCurrentUser() {
+      try {
+        const response = await $fetch('/api/me') as { user: CurrentUser }
+        this.currentUser = response.user
+      } catch (err) {
+        console.error(err)
+        this.currentUser = null
       }
     }
   }

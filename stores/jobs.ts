@@ -1,10 +1,20 @@
 import { defineStore } from 'pinia'
 
+interface JobArtifact {
+  filename: string
+  url: string
+  size?: number
+  type?: string
+}
+
 interface JobStatus {
   id: string
   job_name: string
   project: string
   group: string
+  owner_id?: string
+  owner_email?: string
+  owner_username?: string
   status: string
   duration: number
   created_at: string
@@ -12,7 +22,8 @@ interface JobStatus {
   finished_at?: string
   expires_at: string
   download_url?: string
-  artifacts: Array<{ filename: string; url: string }>
+  log_url?: string
+  artifacts: JobArtifact[]
   failure_reason?: string
   failure_message?: string
 }
@@ -20,6 +31,7 @@ interface JobStatus {
 export const useJobsStore = defineStore('jobs', {
   state: () => ({
     jobs: [] as JobStatus[],
+    logs: {} as Record<string, string>,
     status: false
   }),
 
@@ -75,6 +87,17 @@ export const useJobsStore = defineStore('jobs', {
           console.error('Error updating job:', err)
         }
       }
+    },
+
+    async loadLogs(jobId: string) {
+      if (this.logs[jobId]) return this.logs[jobId]
+
+      const response = await $fetch(`/api/jobs/${jobId}/logs`) as {
+        job_id: string
+        logs: string
+      }
+      this.logs[jobId] = response.logs
+      return response.logs
     }
   }
 })
