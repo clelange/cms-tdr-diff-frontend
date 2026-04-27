@@ -52,7 +52,9 @@
             </o-table-column>
             <o-table-column v-slot="props" field="project" label="Project" width="120" sortable>
               <template v-if="props?.row">
-                {{ props.row.group }} / {{ props.row.project }}
+                <NuxtLink :to="props.row.projectPath" class="project-link">
+                  {{ props.row.group }} / {{ props.row.project }}
+                </NuxtLink>
               </template>
             </o-table-column>
             <o-table-column v-slot="props" field="status" label="Status" width="40" sortable>
@@ -117,7 +119,11 @@
                 <dl class="job-meta">
                   <div>
                     <dt>Project</dt>
-                    <dd>{{ row.group }} / {{ row.project }}</dd>
+                    <dd>
+                      <NuxtLink :to="row.projectPath" class="project-link">
+                        {{ row.group }} / {{ row.project }}
+                      </NuxtLink>
+                    </dd>
                   </div>
                   <div>
                     <dt>Commits</dt>
@@ -177,6 +183,7 @@ interface DashboardRow {
   jobId: string
   project: string
   group: string
+  projectPath: string
   sha1?: string
   sha2?: string
   sha1_short: string
@@ -290,6 +297,7 @@ const toDashboardRow = (job: JobStatus): DashboardRow => {
     jobId: job.id,
     project: job.project,
     group: job.group,
+    projectPath: projectPath(job.group, job.project),
     sha1: job.sha1,
     sha2: job.sha2,
     sha1_short: shortSha(job.sha1),
@@ -305,6 +313,9 @@ const toDashboardRow = (job: JobStatus): DashboardRow => {
     artifacts_text: artifacts.length ? '' : job.status === 'success' ? 'not available' : ''
   }
 }
+
+const projectPath = (group: string, project: string) =>
+  `/${encodeURIComponent(group)}/${encodeURIComponent(project)}`
 
 const getStatusDisplay = (job: JobStatus) => {
   switch (job.status) {
@@ -400,6 +411,10 @@ useIntervalFn(updatePipelines, 15000)
 .job-id {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.9rem;
+}
+
+.project-link {
+  font-weight: 700;
 }
 
 .artifact-links {
