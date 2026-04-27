@@ -36,6 +36,7 @@ build_image:
         DESTINATIONS="$DESTINATIONS --destination ${CI_REGISTRY_IMAGE}:latest"
       fi
       /kaniko/executor \
+        --force \
         --context "$CI_PROJECT_DIR" \
         --dockerfile "$CI_PROJECT_DIR/Dockerfile.prod" \
         --build-arg SNAPSHOT="$CI_COMMIT_SHORT_SHA" \
