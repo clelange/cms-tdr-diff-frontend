@@ -3,6 +3,9 @@
 Nuxt/Vue frontend for browsing CMS papers and notes, selecting two commits, and
 triggering an OpenShift-hosted diff job through the backend API.
 
+Diff job status is shown on `/dashboard`; the legacy `/statusboard` route
+redirects there for existing links.
+
 ## Local Development
 
 ```sh

@@ -12,12 +12,23 @@
       <p>
         Select two commits (rows), then hit the submit button to trigger the PDF diff
         job. You can find the status of your jobs on the
-        <NuxtLink to="/statusboard">Status Board</NuxtLink>
+        <NuxtLink to="/dashboard">Dashboard</NuxtLink>
         page.
       </p>
     </section>
 
-    <div class="notification">
+    <o-notification
+      v-if="submitError"
+      class="submit-error"
+      variant="danger"
+      closeable
+      aria-close-label="Close notification"
+      @close="submitError = ''"
+    >
+      {{ submitError }}
+    </o-notification>
+
+    <div class="notification commit-selection">
       <o-button
         v-for="(item, index) in checkedRows"
         v-on:click="removeElement(index)"
@@ -31,9 +42,10 @@
         variant="primary"
         size="large"
         :disabled="checkedRows.length != 2 || isSubmitted == true"
+        :loading="isSubmitted"
         @click="submitJob()"
       >
-        Submit
+        {{ isSubmitted ? 'Creating diff job...' : 'Submit' }}
       </o-button>
     </div>
     <section>
@@ -135,6 +147,7 @@ import { useJobsStore } from '~/stores/jobs'
 import { format } from 'date-fns'
 
 const route = useRoute()
+const router = useRouter()
 const mainStore = useMainStore()
 const commitsStore = useCommitsStore()
 const jobsStore = useJobsStore()
@@ -151,6 +164,7 @@ const checkedRows = ref<any[]>([])
 const isSubmitted = ref(false)
 const commitList = ref<any[]>([])
 const currentJob = ref<string | null>(null)
+const submitError = ref('')
 
 const filtered = computed(() => {
   if (!onlyCADI.value) {
@@ -198,8 +212,9 @@ const compare = (a: any, b: any) => {
 
 const submitJob = async () => {
   isSubmitted.value = true
+  submitError.value = ''
   
-  const sorted = checkedRows.value.sort(compare)
+  const sorted = [...checkedRows.value].sort(compare)
   const postDict = {
     sha1: sorted[0].id,
     sha2: sorted[1].id,
@@ -211,12 +226,21 @@ const submitJob = async () => {
     const response = await $fetch('/api/trigger', {
       method: 'POST',
       body: postDict
-    }) as { job_id: string }
+    }) as { job_id: string, reused?: boolean }
     
     currentJob.value = response.job_id
-    await jobsStore.load(response.job_id)
+    await jobsStore.load(response.job_id).catch(() => undefined)
+    await router.push({
+      path: '/dashboard',
+      query: {
+        job: response.job_id,
+        reused: response.reused ? '1' : '0'
+      }
+    })
   } catch (error) {
     console.error(error)
+    submitError.value = 'Could not create the diff job. Please check the selected commits and try again.'
+    isSubmitted.value = false
   }
 }
 </script>
@@ -226,13 +250,25 @@ const submitJob = async () => {
   width: 90vw;
 }
 
+.submit-error {
+  margin: 0 1.5rem 1rem;
+}
+
+.commit-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
 @media (max-width: 768px) {
+  .submit-error {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+
   .notification {
     border-radius: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
   }
 
   :deep(.field.is-grouped) {

@@ -12,6 +12,8 @@ interface JobStatus {
   job_name: string
   project: string
   group: string
+  sha1?: string
+  sha2?: string
   owner_id?: string
   owner_email?: string
   owner_username?: string

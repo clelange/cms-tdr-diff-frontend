@@ -50,9 +50,9 @@
           </span>
           <span v-else class="button">Loading...</span>
         </button>
-        <NuxtLink class="navbar-item" to="/statusboard">
+        <NuxtLink class="navbar-item" to="/dashboard" @click="isMenuOpen = false">
           <div class="buttons">
-            <strong>Status Board</strong>
+            <strong>Dashboard</strong>
           </div>
         </NuxtLink>
       </div>
