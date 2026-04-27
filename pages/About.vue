@@ -44,10 +44,7 @@
           you really like it,
           <a href="https://www.buymeacoffee.com/clange">buy me a tea</a>!
           <br />
-          <link
-            href="https://fonts.googleapis.com/css?family=Cookie"
-            rel="stylesheet"
-          /><a
+          <a
             class="bmc-button"
             target="_blank"
             href="https://www.buymeacoffee.com/clange"

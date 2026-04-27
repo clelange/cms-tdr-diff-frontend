@@ -4,7 +4,14 @@ export default defineNuxtConfig({
 
   modules: ['@pinia/nuxt'],
 
-  css: ['@oruga-ui/theme-bulma/style.css', 'katex/dist/katex.min.css'],
+  css: [
+    '@fontsource/source-sans-pro/latin-400.css',
+    '@fontsource/quicksand/latin-300.css',
+    '@fontsource/permanent-marker/latin-400.css',
+    '@fontsource/cookie/latin-400.css',
+    '@oruga-ui/theme-bulma/style.css',
+    'katex/dist/katex.min.css'
+  ],
 
   runtimeConfig: {
     backendUrl: process.env.BACKEND_URL || 'http://localhost:8000',
@@ -31,11 +38,7 @@ export default defineNuxtConfig({
         { name: 'description', content: 'CMS paper and notes diff' }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css?family=Permanent+Marker&display=swap&text=CMS%20PaperDiff'
-        }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ]
     },
     pageTransition: { name: 'page', mode: 'out-in' }

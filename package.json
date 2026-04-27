@@ -13,6 +13,10 @@
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {
+    "@fontsource/cookie": "^5.2.7",
+    "@fontsource/permanent-marker": "^5.2.7",
+    "@fontsource/quicksand": "^5.2.10",
+    "@fontsource/source-sans-pro": "^5.2.5",
     "@oruga-ui/oruga-next": "^0.13.5",
     "@oruga-ui/theme-bulma": "^0.9.0",
     "@pinia/nuxt": "^0.11.3",
