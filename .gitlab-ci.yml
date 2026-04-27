@@ -1,0 +1,57 @@
+stages:
+  - validate
+  - build
+  - deploy
+
+variables:
+  OPENSHIFT_SERVER: "https://api.paas.okd.cern.ch"
+  OPENSHIFT_DEV_PROJECT: "cms-tdr-diff-dev"
+  OPENSHIFT_DEV_IMAGESTREAM: "tdr-diff-client"
+  OPENSHIFT_DEV_DEPLOYMENT: "tdr-diff-client"
+  FRONTEND_DEV_BRANCH: "feature/vue3-openshift-jobs"
+  IMAGE_TAG: "$CI_COMMIT_REF_SLUG"
+
+typecheck:
+  stage: validate
+  image: node:24-alpine
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - npm ci
+    - npm run typecheck
+
+build_image:
+  stage: build
+  image:
+    name: gitlab-registry.cern.ch/ci-tools/docker-image-builder
+    entrypoint: [""]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - |
+      DESTINATIONS="--destination ${CI_REGISTRY_IMAGE}:${IMAGE_TAG} --destination ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        DESTINATIONS="$DESTINATIONS --destination ${CI_REGISTRY_IMAGE}:latest"
+      fi
+      /kaniko/executor \
+        --context "$CI_PROJECT_DIR" \
+        --dockerfile "$CI_PROJECT_DIR/Dockerfile.prod" \
+        --build-arg SNAPSHOT="$CI_COMMIT_SHORT_SHA" \
+        $DESTINATIONS
+
+deploy_dev:
+  stage: deploy
+  image: gitlab-registry.cern.ch/paas-tools/openshift-client:latest
+  needs:
+    - build_image
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $FRONTEND_DEV_BRANCH && $OPENSHIFT_DEV_TOKEN'
+  script:
+    - oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_DEV_TOKEN"
+    - oc project "$OPENSHIFT_DEV_PROJECT"
+    - oc import-image "${OPENSHIFT_DEV_IMAGESTREAM}:${IMAGE_TAG}" --from="${CI_REGISTRY_IMAGE}:${IMAGE_TAG}" --confirm --reference-policy=local
+    - oc patch configmap cms-tdr-diff-frontend-configmap --type merge -p "{\"data\":{\"BUILD_HASH\":\"${CI_COMMIT_SHORT_SHA}\"}}"
+    - oc rollout restart "deployment/${OPENSHIFT_DEV_DEPLOYMENT}"
+    - oc rollout status "deployment/${OPENSHIFT_DEV_DEPLOYMENT}" --timeout=180s
