@@ -34,7 +34,7 @@ export const useJobsStore = defineStore('jobs', {
   state: () => ({
     jobs: [] as JobStatus[],
     logs: {} as Record<string, string>,
-    status: false
+    status: false,
   }),
 
   getters: {},
@@ -48,7 +48,7 @@ export const useJobsStore = defineStore('jobs', {
       }
 
       try {
-        const response = await $fetch(`/api/jobs/${jobId}`) as {
+        const response = (await $fetch(`/api/jobs/${jobId}`)) as {
           job_status: JobStatus
         }
         this.jobs.push(response.job_status)
@@ -61,7 +61,7 @@ export const useJobsStore = defineStore('jobs', {
 
     async loadAll() {
       try {
-        const response = await $fetch('/api/jobs') as { jobs: JobStatus[] }
+        const response = (await $fetch('/api/jobs')) as { jobs: JobStatus[] }
         this.jobs = response.jobs
         this.status = true
       } catch (err) {
@@ -78,10 +78,12 @@ export const useJobsStore = defineStore('jobs', {
 
       for (const job of this.jobs) {
         try {
-          const response = await $fetch(`/api/jobs/${job.id}`) as {
+          const response = (await $fetch(`/api/jobs/${job.id}`)) as {
             job_status: JobStatus
           }
-          const index = this.jobs.findIndex((storedJob) => storedJob.id === job.id)
+          const index = this.jobs.findIndex(
+            (storedJob) => storedJob.id === job.id,
+          )
           if (index >= 0) {
             this.jobs[index] = response.job_status
           }
@@ -91,15 +93,17 @@ export const useJobsStore = defineStore('jobs', {
       }
     },
 
-    async loadLogs(jobId: string) {
-      if (this.logs[jobId]) return this.logs[jobId]
+    async loadLogs(jobId: string, force = false) {
+      if (!force && Object.prototype.hasOwnProperty.call(this.logs, jobId)) {
+        return this.logs[jobId]
+      }
 
-      const response = await $fetch(`/api/jobs/${jobId}/logs`) as {
+      const response = (await $fetch(`/api/jobs/${jobId}/logs`)) as {
         job_id: string
         logs: string
       }
       this.logs[jobId] = response.logs
       return response.logs
-    }
-  }
+    },
+  },
 })

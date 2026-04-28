@@ -13,8 +13,10 @@
         aria-close-label="Close notification"
         @close="dismissNotice"
       >
-        <strong>{{ dashboardNotice.title }}</strong>
-        <span>{{ dashboardNotice.message }}</span>
+        <span>
+          <strong>{{ dashboardNotice.title }}</strong>
+          {{ dashboardNotice.message }}
+        </span>
       </o-notification>
     </section>
     <ClientOnly>
@@ -50,15 +52,29 @@
                 {{ props?.row?.jobId || '' }}
               </span>
             </o-table-column>
-            <o-table-column v-slot="props" field="project" label="Project" width="120" sortable>
+            <o-table-column
+              v-slot="props"
+              field="project"
+              label="Project"
+              width="120"
+              sortable
+            >
               <template v-if="props?.row">
                 <NuxtLink :to="props.row.projectPath" class="project-link">
                   {{ props.row.group }} / {{ props.row.project }}
                 </NuxtLink>
               </template>
             </o-table-column>
-            <o-table-column v-slot="props" field="status" label="Status" width="40" sortable>
-              <span v-if="props?.row" :class="props.row.status_style">{{ props.row.status }}</span>
+            <o-table-column
+              v-slot="props"
+              field="status"
+              label="Status"
+              width="40"
+              sortable
+            >
+              <span v-if="props?.row" :class="props.row.status_style">{{
+                props.row.status
+              }}</span>
             </o-table-column>
             <o-table-column
               v-slot="props"
@@ -72,7 +88,13 @@
                 {{ props.row.created_at }} ago
               </template>
             </o-table-column>
-            <o-table-column v-slot="props" field="duration" label="Duration" width="150" centered>
+            <o-table-column
+              v-slot="props"
+              field="duration"
+              label="Duration"
+              width="150"
+              centered
+            >
               {{ props?.row?.duration || '' }}
             </o-table-column>
             <o-table-column
@@ -87,18 +109,38 @@
             </o-table-column>
             <o-table-column v-slot="props" field="artifact" label="Diff output">
               <div v-if="props?.row?.artifacts?.length" class="artifact-links">
-                <a
+                <template
                   v-for="artifact in props.row.artifacts"
                   :key="artifact.href"
-                  :href="artifact.href"
-                  class="button is-small is-light"
                 >
-                  {{ artifact.label }}
-                </a>
+                  <button
+                    v-if="artifact.isPdf"
+                    class="button is-small is-light"
+                    :class="{ 'is-info': isSelectedPdf(props.row, artifact) }"
+                    type="button"
+                    @click="togglePdf(props.row, artifact)"
+                  >
+                    {{ artifact.label }}
+                  </button>
+                  <a
+                    v-else
+                    :href="artifact.href"
+                    class="button is-small is-light"
+                    download
+                  >
+                    {{ artifact.label }}
+                  </a>
+                </template>
               </div>
               <span v-else>{{ props?.row?.artifacts_text || '' }}</span>
             </o-table-column>
-            <o-table-column v-slot="props" field="logs" label="Logs" width="100" centered>
+            <o-table-column
+              v-slot="props"
+              field="logs"
+              label="Logs"
+              width="100"
+              centered
+            >
               <template v-if="props?.row">
                 <button
                   class="button is-small"
@@ -138,14 +180,48 @@
                     <dd>{{ row.expires_at }}</dd>
                   </div>
                 </dl>
-                <div v-if="row.failure_message" class="notification is-danger is-light">
+                <div
+                  v-if="row.failure_message"
+                  class="notification is-danger is-light"
+                >
                   {{ row.failure_message }}
+                </div>
+                <div
+                  v-if="selectedPdf && selectedPdf.jobId === row.jobId"
+                  class="pdf-panel"
+                >
+                  <div class="pdf-panel-header">
+                    <div class="pdf-panel-title">
+                      {{ selectedPdf.artifact.filename }}
+                    </div>
+                    <button
+                      class="button is-small is-light"
+                      type="button"
+                      @click="clearPdf"
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <iframe
+                    class="pdf-viewer"
+                    :src="selectedPdf.artifact.href"
+                    :title="`PDF preview for ${selectedPdf.artifact.filename}`"
+                  />
                 </div>
                 <div class="log-panel">
                   <div class="log-panel-title">Build log</div>
-                  <pre v-if="logs[row.jobId]" class="log-output">{{ logs[row.jobId] }}</pre>
-                  <span v-else-if="loadingLogs[row.jobId]">Loading logs...</span>
-                  <span v-else class="has-text-danger">{{ logErrors[row.jobId] || 'Logs are not available yet.' }}</span>
+                  <pre v-if="hasLoadedLogs(row.jobId)" class="log-output">{{
+                    logs[row.jobId]
+                  }}</pre>
+                  <span v-else-if="loadingLogs[row.jobId]"
+                    >Loading logs...</span
+                  >
+                  <span
+                    v-else-if="logErrors[row.jobId]"
+                    class="has-text-danger"
+                    >{{ logErrors[row.jobId] }}</span
+                  >
+                  <span v-else>{{ logPlaceholder(row) }}</span>
                 </div>
               </div>
             </template>
@@ -153,7 +229,7 @@
               <section class="section">
                 <div class="content has-text-grey has-text-centered">
                   <p>
-                    <o-icon icon="emoticon-sad" size="large"/>
+                    <o-icon icon="emoticon-sad" size="large" />
                   </p>
                   <p>No jobs found.</p>
                 </div>
@@ -176,7 +252,15 @@ import { useIntervalFn } from '@vueuse/core'
 
 interface DashboardArtifact {
   href: string
+  filename: string
   label: string
+  type: string
+  isPdf: boolean
+}
+
+interface SelectedPdf {
+  jobId: string
+  artifact: DashboardArtifact
 }
 
 interface DashboardRow {
@@ -210,9 +294,11 @@ const { currentUserLabel } = storeToRefs(mainStore)
 const loaded = computed(() => jobsStore.status)
 const loadingLogs = ref<Record<string, boolean>>({})
 const logErrors = ref<Record<string, string>>({})
+const finalLogsLoaded = ref<Record<string, boolean>>({})
 const detailedRows = ref<DashboardRow[]>([])
 const noticeDismissed = ref(false)
 const requestedJobOpened = ref(false)
+const selectedPdf = ref<SelectedPdf | null>(null)
 
 const requestedJobId = computed(() => {
   const value = route.query.job
@@ -225,7 +311,7 @@ const dashboardNotice = computed(() => {
   return {
     variant: reused ? 'info' : 'success',
     title: reused ? 'Existing diff found.' : 'Diff job created.',
-    message: `Job ${requestedJobId.value} is shown below. Use Show logs for build details.`
+    message: `Job ${requestedJobId.value} is shown below.`,
   }
 })
 
@@ -236,27 +322,63 @@ const updatePipelines = async () => {
 }
 
 const isDetailed = (row: DashboardRow) =>
-  detailedRows.value.some(detailsRow => detailsRow.jobId === row.jobId)
+  detailedRows.value.some((detailsRow) => detailsRow.jobId === row.jobId)
 
 const setDetailed = (row: DashboardRow, open: boolean) => {
-  const existing = detailedRows.value.filter(detailsRow => detailsRow.jobId !== row.jobId)
+  const existing = detailedRows.value.filter(
+    (detailsRow) => detailsRow.jobId !== row.jobId,
+  )
   detailedRows.value = open ? [...existing, row] : existing
+  if (!open && selectedPdf.value?.jobId === row.jobId) {
+    selectedPdf.value = null
+  }
 }
 
 const toggleLogs = async (row: DashboardRow) => {
   const opening = !isDetailed(row)
   setDetailed(row, opening)
-  if (!opening || logs.value[row.jobId]) return
+  if (!opening) return
 
+  const forceFinalLog = isFinished(row) && !finalLogsLoaded.value[row.jobId]
+  if (!forceFinalLog && hasLoadedLogs(row.jobId)) return
+  await loadLogsForRow(row, { force: forceFinalLog })
+}
+
+const loadLogsForRow = async (
+  row: DashboardRow,
+  options: { force?: boolean } = {},
+) => {
+  if (loadingLogs.value[row.jobId]) return
   loadingLogs.value[row.jobId] = true
   logErrors.value[row.jobId] = ''
   try {
-    await jobsStore.loadLogs(row.jobId)
+    await jobsStore.loadLogs(row.jobId, options.force)
+    if (isFinished(row)) {
+      finalLogsLoaded.value[row.jobId] = true
+    }
   } catch (error: unknown) {
-    logErrors.value[row.jobId] = getFetchErrorMessage(error) || 'Could not load logs.'
+    if (isFinished(row)) {
+      logErrors.value[row.jobId] =
+        getFetchErrorMessage(error) || 'Could not load logs.'
+    }
   } finally {
     loadingLogs.value[row.jobId] = false
   }
+}
+
+const togglePdf = (row: DashboardRow, artifact: DashboardArtifact) => {
+  if (isSelectedPdf(row, artifact)) {
+    selectedPdf.value = null
+    return
+  }
+
+  selectedPdf.value = { jobId: row.jobId, artifact }
+  setDetailed(row, true)
+  loadLogsForOpenFinishedRows()
+}
+
+const clearPdf = () => {
+  selectedPdf.value = null
 }
 
 const dismissNotice = () => {
@@ -273,8 +395,30 @@ const openRequestedJob = async () => {
     await nextTick()
     document.getElementById(`job-${requestedJobId.value}`)?.scrollIntoView({
       behavior: 'smooth',
-      block: 'center'
+      block: 'center',
     })
+  }
+}
+
+const isSelectedPdf = (row: DashboardRow, artifact: DashboardArtifact) =>
+  selectedPdf.value?.jobId === row.jobId &&
+  selectedPdf.value.artifact.href === artifact.href
+
+const hasLoadedLogs = (jobId: string) =>
+  Object.prototype.hasOwnProperty.call(logs.value, jobId)
+
+const isFinished = (row: DashboardRow) =>
+  row.status === 'success' || row.status === 'failed'
+
+const logPlaceholder = (row: DashboardRow) =>
+  isFinished(row) ? 'Loading logs...' : 'Build log will appear when available.'
+
+const loadLogsForOpenFinishedRows = () => {
+  for (const row of filtered.value) {
+    if (!isDetailed(row) || !isFinished(row)) continue
+    if (hasLoadedLogs(row.jobId) && finalLogsLoaded.value[row.jobId]) continue
+
+    loadLogsForRow(row, { force: !finalLogsLoaded.value[row.jobId] })
   }
 }
 
@@ -282,12 +426,12 @@ const normalizeRoute = async () => {
   if (route.path !== '/dashboard') {
     await router.replace({
       path: '/dashboard',
-      query: route.query
+      query: route.query,
     })
   }
 }
 
-const shortSha = (sha?: string) => sha ? sha.slice(0, 8) : '-'
+const shortSha = (sha?: string) => (sha ? sha.slice(0, 8) : '-')
 
 const toDashboardRow = (job: JobStatus): DashboardRow => {
   const { status_style, duration } = getStatusDisplay(job)
@@ -310,7 +454,11 @@ const toDashboardRow = (job: JobStatus): DashboardRow => {
     created_at: formatDistanceToNow(new Date(job.created_at)),
     expires_at: formatExpiresAt(job.expires_at),
     artifacts,
-    artifacts_text: artifacts.length ? '' : job.status === 'success' ? 'not available' : ''
+    artifacts_text: artifacts.length
+      ? ''
+      : job.status === 'success'
+        ? 'not available'
+        : '',
   }
 }
 
@@ -322,11 +470,20 @@ const getStatusDisplay = (job: JobStatus) => {
     case 'pending':
       return { status_style: 'tag is-warning', duration: '-' }
     case 'running':
-      return { status_style: 'tag is-warning', duration: formatDuration(job.duration) }
+      return {
+        status_style: 'tag is-warning',
+        duration: formatDuration(job.duration),
+      }
     case 'success':
-      return { status_style: 'tag is-success', duration: formatDuration(job.duration) }
+      return {
+        status_style: 'tag is-success',
+        duration: formatDuration(job.duration),
+      }
     default:
-      return { status_style: 'tag is-danger', duration: formatDuration(job.duration) }
+      return {
+        status_style: 'tag is-danger',
+        duration: formatDuration(job.duration),
+      }
   }
 }
 
@@ -343,17 +500,26 @@ const formatExpiresAt = (expiresAt: string) => {
 }
 
 const formatArtifacts = (artifacts: JobArtifact[]): DashboardArtifact[] =>
-  artifacts.map(artifact => ({
+  artifacts.map((artifact) => ({
     href: `/api${artifact.url}`,
-    label: artifact.filename === 'output.zip'
-      ? 'output.zip'
-      : `${artifact.filename}${artifact.size ? ` (${formatBytes(artifact.size)})` : ''}`
+    filename: artifact.filename,
+    label:
+      artifact.filename === 'output.zip'
+        ? 'output.zip'
+        : `${artifact.filename}${artifact.size ? ` (${formatBytes(artifact.size)})` : ''}`,
+    type: artifact.type || '',
+    isPdf:
+      artifact.type === 'application/pdf' ||
+      artifact.filename.toLowerCase().endsWith('.pdf'),
   }))
 
 const formatBytes = (bytes: number) => {
   if (!bytes) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB']
-  const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+  const exponent = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1,
+  )
   const value = bytes / Math.pow(1024, exponent)
   return `${value.toFixed(value >= 10 || exponent === 0 ? 0 : 1)} ${units[exponent]}`
 }
@@ -380,7 +546,12 @@ watch(requestedJobId, () => {
   noticeDismissed.value = false
 })
 
-watch(filtered, openRequestedJob)
+watch(filtered, () => {
+  openRequestedJob()
+  loadLogsForOpenFinishedRows()
+})
+
+watch(detailedRows, loadLogsForOpenFinishedRows)
 
 useIntervalFn(updatePipelines, 15000)
 </script>
@@ -466,6 +637,31 @@ useIntervalFn(updatePipelines, 15000)
   overflow-wrap: anywhere;
 }
 
+.pdf-panel {
+  margin-bottom: 1rem;
+}
+
+.pdf-panel-header {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.pdf-panel-title {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.pdf-viewer {
+  border: 1px solid #d5dce6;
+  border-radius: 4px;
+  height: min(72vh, 48rem);
+  min-height: 34rem;
+  width: 100%;
+}
+
 .log-panel {
   width: 100%;
 }
@@ -517,6 +713,16 @@ useIntervalFn(updatePipelines, 15000)
 
   .job-meta {
     grid-template-columns: 1fr;
+  }
+
+  .pdf-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pdf-viewer {
+    height: 70vh;
+    min-height: 26rem;
   }
 }
 </style>
